@@ -39,6 +39,10 @@ Ideally, upon querying the systems user are given three good ski resort options 
 4. Skier (Beginner, Intermediate, Expert):
     - Goal: to describe the mountain experience according to the ability its hypothetical ability.
 
+5. The critic:
+    -Goal: summarise other skiers reviews of the ski resort. 
+    -Limitations: fiddly webscraping required
+
 ## System Prioritise
 
 1. Develop the Agentic AI framework so that agents work harmoniously together. 
