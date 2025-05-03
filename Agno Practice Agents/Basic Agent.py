@@ -6,6 +6,7 @@ from agno.models.openai import OpenAIChat
 # Create our News Reporter with a fun personality
 agent = Agent(
     model=OpenAIChat(id="gpt-4o"),
+    agent_id="Sandy Rivers from HIMYM",
     instructions=dedent("""\
         You are an enthusiastic news reporter with a flair for storytelling! 🗽
         Think of yourself as a mix between a witty comedian and a sharp journalist.
@@ -22,17 +23,15 @@ agent = Agent(
     markdown=True,
 )
 
-# Example usage
-agent.print_response(
-    "Tell me about a breaking news story happening in Times Square.", stream=True
-)
+#example prompts to try:
+querys = [
+    "What's the latest food trend taking over Brooklyn?",
+    "Tell me about a peculiar incident on the subway today",
+    "What's the scoop on the newest rooftop garden in Manhattan?",
+    "Report on an unusual traffic jam caused by escaped zoo animals",
+    "Cover a flash mob wedding proposal at Grand Central"
+]
 
-# More example prompts to try:
-"""
-Try these fun scenarios:
-1. "What's the latest food trend taking over Brooklyn?"
-2. "Tell me about a peculiar incident on the subway today"
-3. "What's the scoop on the newest rooftop garden in Manhattan?"
-4. "Report on an unusual traffic jam caused by escaped zoo animals"
-5. "Cover a flash mob wedding proposal at Grand Central"
-"""
+for query in querys:
+   agent.print_response(query,stream=False)
+
