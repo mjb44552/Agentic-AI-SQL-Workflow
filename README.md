@@ -26,6 +26,10 @@ Ideally, upon querying the systems user are given three good ski resort options 
 1. Web Searcher:
     - Goal: Retrieve information from the web when required for the user. 
     - Limitations: Will only find text, images and videos.
+    - Tools: 
+        - Google / DuckDuckGo Search Tools 
+        - General Webscraping Tools
+        - YouTube Tools 
 
 2. Data Analyst:
     - Goal: to summarise numerical data about ski resorts and present its findings to users.
@@ -35,16 +39,27 @@ Ideally, upon querying the systems user are given three good ski resort options 
 3. Weather Girl:
     - Goal: call the relevent API's to get up to date or historical weahter statistics for the user.
     - Limitations: the API's it'll call will be limited ot the API's this application has keys for. 
+    - Tools:
+        - API connectors & External Services.
 
-4. Skier (Beginner, Intermediate, Expert):
-    - Goal: to describe the mountain experience according to the ability its hypothetical ability.
-
-5. The critic:
+4. The critic:
     -Goal: summarise other skiers reviews of the ski resort. 
-    -Limitations: fiddly webscraping required
+    -Limitations: have a list of sites the chatbot pulls reviews from.
+    -Tools: 
+        - Google / DuckDuckGo Search Tools 
+        - General Webscraping Tools 
+
+5. The marketing team (tailoring to Beginner, Intermediate, Expert skiers):
+    - Goal: to describe the mountain experience according to the ability its hypothetical ability. Provide the final heuristic application.
+    - Collaboration: Could actually be multiple AI personalities discussing / collaborating together to give final recommendation.
+    - Limitations: This is the based on the validity of the data being analysed. 
 
 ## System Prioritise
 
 1. Develop the Agentic AI framework so that agents work harmoniously together. 
 2. Build limitations and goals into the agents to ensure output is consistent and useful.
 3. Build a basic user interface. 
+
+## Ski Resort Data 
+
+Sourced from OpenSkiMap.org 
