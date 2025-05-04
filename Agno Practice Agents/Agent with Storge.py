@@ -1,6 +1,8 @@
+#packages for text manipulation
 from textwrap import dedent
 from typing import List, Optional
 
+#packages for AI Agents 
 import typer
 from agno.agent import Agent
 from agno.embedder.openai import OpenAIEmbedder
@@ -11,6 +13,20 @@ from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.vectordb.lancedb import LanceDb, SearchType
 from rich import print
 
+#packages for inititing open AI key
+from dotenv import load_dotenv
+import os 
+
+# Load environment variables from the .env file
+load_dotenv()
+
+# Access the OpenAI API key
+openai_api_key = os.getenv("OPENAI_API_KEY")
+
+# Set the environment variable temporarily
+os.environ["OPENAI_API_KEY"] = openai_api_key
+
+#encoding prior knowledge into a vector database 
 agent_knowledge = PDFUrlKnowledgeBase(
     urls=["https://agno-public.s3.amazonaws.com/recipes/ThaiRecipes.pdf"],
     vector_db=LanceDb(
@@ -21,14 +37,14 @@ agent_knowledge = PDFUrlKnowledgeBase(
     ),
 )
 
+#saving the vector database in computers directory
 agent_storage = SqliteStorage(table_name="recipe_agent", db_file="tmp/agents.db")
-
 
 def recipe_agent(user: str = "user"):
     session_id: Optional[str] = None
 
     # Ask the user if they want to start a new session or continue an existing one
-    new = typer.confirm("Do you want to start a new session?")
+    new:bool = typer.confirm("Do you want to start a new session?")
 
     if not new:
         existing_sessions: List[str] = agent_storage.get_all_session_ids(user)
@@ -96,10 +112,11 @@ def recipe_agent(user: str = "user"):
         # 1. Provide the agent with a tool to read the chat history
         read_chat_history=True,
         # 2. Automatically add the chat history to the messages sent to the model
-        # add_history_to_messages=True,
+        add_history_to_messages=True,
         # Number of historical responses to add to the messages.
-        # num_history_responses=3,
+        num_history_responses=3,
         markdown=True,
+        enable_session_summaries=True
     )
 
     print("You are about to chat with an agent!")
@@ -114,6 +131,9 @@ def recipe_agent(user: str = "user"):
 
     # Runs the agent as a command line application
     agent.cli_app(markdown=True)
+
+    print(agent.get_session_summary())
+    print(agent.get_session_data())
 
 
 if __name__ == "__main__":
