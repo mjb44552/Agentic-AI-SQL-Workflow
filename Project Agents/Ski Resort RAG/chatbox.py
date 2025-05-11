@@ -16,7 +16,6 @@ def run_RAG_agent(agent:Agent,queries: List,recreate:bool = False) -> None:
     
 run_RAG_agent(agent,queries=[
     "Create a list of 5 USA Ski Resorts with the highest max elevation in the country, show descending order of their elevation.",
-    "Create a list of 5 USA Ski Resorts with the highest max elevation in the country, show descending order of their elevation. "],
+    "Print a list of all column names in the ski_areas.csv file"],
     recreate=False)
-
 

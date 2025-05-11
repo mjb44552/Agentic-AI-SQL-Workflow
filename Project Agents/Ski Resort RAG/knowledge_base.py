@@ -6,13 +6,17 @@ from agno.vectordb.pgvector import PgVector
 db_url = "postgresql+psycopg://ai:ai@localhost:5532/ai"
 csv_path = Path(r'Data\ski_areas.csv')
 
+#defining knowledge base
 kb = CSVKnowledgeBase(
     path=csv_path,
     vector_db=PgVector(
         table_name="ski_areas",
-        db_url=db_url),
-    num_documents=1,
+        db_url=db_url,
+        search_type='vector'),
+    num_documents=5,
 )
 
-# Load once without recreating
-kb.load(recreate=False)
+#loading knowledge base
+kb.load(recreate=True)
+
+
