@@ -39,12 +39,15 @@ def binarise_bool_values(data:pd.DataFrame,columns:list) -> pd.DataFrame:
         pd.DataFrame: The cleaned dataframe.
     """
     for col in columns:
-        #set yes values to 1
+        #set yes values to True
         yes_mask = data[col].str.lower() == 'yes'
-        data.loc[yes_mask, col] = 1
-        #set no values to 0
+        data.loc[yes_mask, col] = True
+        #set no values to False
         no_mask = data[col].str.lower() == 'no'
-        data.loc[no_mask, col] = 0
+        data.loc[no_mask, col] = False
+        #set NaN values to False
+        nan_mask = data[col].isna()
+        data.loc[nan_mask, col] = False
     return data
 
 country_continent_data = pd.read_csv(filepath_or_buffer = country_continent_path,usecols = ['Country','Continent'])
