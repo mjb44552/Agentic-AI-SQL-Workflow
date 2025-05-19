@@ -16,7 +16,11 @@ kb = CSVKnowledgeBase(
     num_documents=5,
 )
 
+print('Knowledge base created')
+
 #loading knowledge base
-kb.load(recreate=True)
+kb.load(recreate=False)
+
+print('Knowledge base loaded')
 
 
