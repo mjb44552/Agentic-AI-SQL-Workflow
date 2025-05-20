@@ -1,4 +1,7 @@
 venv
 tmp
 .env
-data 
+data
+ *.yaml
+*.yml
+__pycache__/
