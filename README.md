@@ -63,3 +63,4 @@ Ideally, upon querying the systems user are given three good ski resort options 
 ## Ski Resort Data 
 
 Sourced from OpenSkiMap.org 
+

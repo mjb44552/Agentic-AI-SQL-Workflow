@@ -2,6 +2,7 @@ venv
 tmp
 .env
 data
- *.yaml
+*.yaml
 *.yml
 __pycache__/
+private_notes.md
