@@ -2,7 +2,7 @@ from agno.agent import Agent
 from knowledge_base import kb
 from agno.models.openai import OpenAIChat
 
-agent = Agent(
+resort_agent = Agent(
     model=OpenAIChat(id="gpt-4o",temperature=0.7),
     knowledge=kb,
     goal=""" 
@@ -24,9 +24,9 @@ agent = Agent(
     # 3 types of RAG implentations 
     add_references=True,        #always pull information from vector database and add to user query
     search_knowledge=False,     #at the agents discretion, pull information from the vector database and add to user query
-    read_chat_history=False,    #always pull information from the vector database storing the chat history
+    read_chat_history=True,    #always pull information from the vector database storing the chat history
     markdown=True,
-    debug_mode=True             #prints the RAG augmented query  
+    debug_mode=False             #prints the RAG augmented query  
 )
 
 print("Agent instance created")

@@ -4,7 +4,8 @@ from agno.vectordb.pgvector import PgVector
 
 #setting configuration settings for vector database
 db_url = "postgresql+psycopg://ai:ai@localhost:5532/ai"
-csv_path = Path(r'Data\ski_areas.csv')
+
+csv_path = Path(r'Project_Agents\Ski_Resort_RAG\clean_data\resort_traits.csv')
 
 #defining knowledge base
 kb = CSVKnowledgeBase(
