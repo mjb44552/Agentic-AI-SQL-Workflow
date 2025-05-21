@@ -1,0 +1,89 @@
+from pathlib import Path
+import pandas as pd
+from sqlalchemy import create_engine, Engine
+from data_processing_helper_func import read_data, clean_string_values, clean_bool_values
+
+resort_path = Path(r'Data\ski_areas.csv')
+country_continent_path = Path(r'Data\country_continent.csv')
+
+resort_use_cols = ['name','country','status','has_downhill','has_nordic','downhill_distance_km',
+            'nordic_distance_km','vertical_m','min_elevation_m','max_elevation_m',
+            'lift_count']
+
+
+#read and set columns for country_continent data
+country_continent_data = pd.read_csv(filepath_or_buffer = country_continent_path,usecols = ['Country','Continent'])
+country_continent_data.columns = ['continent','country']
+
+#read resort website data 
+resort_website_data = pd.read_csv(filepath_or_buffer = resort_path,usecols = ['name','websites'])
+
+#read resort traits data
+resort_traits_data = read_data(resort_path,resort_use_cols)
+
+#clean string type columna in resort_traits_data
+resort_traits_data = clean_string_values(data = resort_traits_data,columns = ['country','name'])
+resort_traits_data = clean_bool_values(data = resort_traits_data,columns = ['has_downhill','has_nordic'])
+resort_traits_data['lift_count'] = resort_traits_data['lift_count'].astype('Int64')
+
+#clean strings in country_continent data
+country_continent_data = clean_string_values(data = country_continent_data,columns = ['country','continent'])
+
+resort_traits_data = pd.merge(resort_traits_data, country_continent_data,on='country', how='inner')
+
+#filtering data 
+#remove ski resorts that are not operational
+is_operational_mask = resort_traits_data['status'] == 'operating'
+resort_traits_data = resort_traits_data[is_operational_mask]
+
+#remove ski resorts that do not have downhill skiing
+has_downhill_mask = resort_traits_data['has_downhill'] == 1
+resort_traits_data = resort_traits_data[has_downhill_mask]
+
+#remove ski resorts that don't have ski lifts
+has_valid_ski_lift_entry_mask = pd.notna(resort_traits_data['lift_count'])
+has_non_zero_ski_lift_count_mask = resort_traits_data['lift_count'] > 0
+resort_traits_data = resort_traits_data[has_valid_ski_lift_entry_mask & has_non_zero_ski_lift_count_mask]
+
+#remove ski resorts that don't have a valid name
+has_valid_name_mask = resort_traits_data['name'] != ''
+resort_traits_data = resort_traits_data[has_valid_name_mask]
+
+resort_traits_data.reset_index(drop=True,inplace=True)
+
+#load cleaned data to csv file in clean_data folder
+resort_traits_data.to_csv(r'Project_Agents\Ski_Resort_Hybrid_RAG\clean_data\resort_traits.csv',index=False)
+resort_website_data.to_csv(r'Project_Agents\Ski_Resort_Hybrid_RAG\clean_data\resort_websites.csv', index=False)
+
+#load data into sql database
+DB_USER = 'ski_resorts_db'
+DB_PASSWORD = 'ski_resorts_db'
+DB_HOST = 'localhost' 
+DB_PORT = '5433'      
+DB_NAME = 'your_database_name'
+
+#creating connection string
+connection_string = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+engine = create_engine(connection_string)
+
+table_name = 'resort_traits'
+
+custome_dtype_dict = {
+    'name': 'VARCHAR(255)',
+    'country': 'VARCHAR(255)',
+    'status': 'VARCHAR(50)',
+    'has_downhill': 'BOOLEAN',
+    'has_nordic': 'BOOLEAN',
+    'downhill_distance_km': 'FLOAT',
+    'nordic_distance_km': 'FLOAT',
+    'vertical_m': 'FLOAT',
+    'min_elevation_m': 'FLOAT',
+    'max_elevation_m': 'FLOAT',
+    'lift_count': 'INTEGER'
+}
+
+resort_traits_data.to_sql(name=table_name, con=engine, if_exists='replace', index=False, dtype= custome_dtype_dict)
+
+
+
+
