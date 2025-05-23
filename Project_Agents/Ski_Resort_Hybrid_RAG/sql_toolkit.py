@@ -10,44 +10,52 @@ from data_processing import resort_traits_data
 from sqlalchemy.types import INTEGER, FLOAT, BOOLEAN, TEXT
 from sqlalchemy import text, create_engine, Engine
 
+import os
+from dotenv import load_dotenv
+
 class ski_resort_traits_sql_toolkit(Toolkit):
     """
     A toolkit for interacting with a SQL database containing ski resort traits.
     """
 
-    def __init__(self, db_user: str = 'ski_resorts_db',
-                 db_password: str = 'ski_resorts_db',
-                 db_host: str = 'localhost',
-                 db_port: str = '5433',
-                 db_name: str = 'ski_resorts_db',
-                 table_name: str = 'resort_traits',
-                 custom_dtype_dict: Optional[dict] = None):
+    def __init__(self, db_user: Optional[str] = None, 
+                 db_password: Optional[str] = None, 
+                 db_host: Optional[str] = None,
+                 db_port: Optional[str] = None,
+                 db_name: Optional[str] = None,
+                 custom_dtype_dict: Optional[dict] = None,
+                 table_name: str = 'resort_traits'):
         """
         Initializes the SkiResortTraitsSQLToolkit with database connection details.
 
         Parameters:
-            db_user (str): Database username.
-            db_password (str): Database password.
-            db_host (str): Database host.
-            db_port (str): Database port.
-            db_name (str): Database name.
+            db_user (str, optional): Database username.
+            db_password (str, optional): Database password.
+            db_host (str, optional): Database host.
+            db_port (str, optional): Database port.
+            db_name (str, optional): Database name.
             table_name (str): Table name in the database.
             custom_dtype_dict (dict,optional): Dictionary mapping column names to SQLAlchemy types.
         """
         super().__init__(name="ski_resort_sql_tools",tools=[self.query_ski_resort_traits_database,self.update_ski_resort_traits_database])
         
-        self.db_user = db_user
-        self.db_password = db_password
-        self.db_host = db_host
-        self.db_port = db_port
-        self.db_name = db_name
+        # Load environment variables from .env file
+        load_dotenv()
+
+        # Set default values for class attributes using environment variables
+        self.db_user = db_user or os.getenv('DB_USER')
+        self.db_password = db_password or os.getenv('DB_PASSWORD')
+        self.db_host = db_host or os.getenv('DB_HOST')
+        self.db_port = db_port or os.getenv('DB_PORT')
+        self.db_name = db_name or os.getenv('DB_NAME')
         self.table_name = table_name
 
-        # Handle mutable default argument for custom_dtype_dict
+        # Check if all required environment variables are set
+        for class_attribute in [self.db_user, self.db_password, self.db_host, self.db_port, self.db_name]:
+            if class_attribute is None:
+                raise ValueError(f"Database credentials not found in .env file.")
 
-        # As custom_dtype_dict is mutable if a new dictionary is provided then all other instances use the new dictionary. 
-        # setting custom_dtype_dict to None and then initialising in consturctor means by default all instances will use the same dictionary.
-        # #Even if one dictionary has been changed. 
+        # set custom_dtype_dict to default values if not provided
         if custom_dtype_dict is None:
             self.custom_dtype_dict = {
                 'name': TEXT,
@@ -67,8 +75,11 @@ class ski_resort_traits_sql_toolkit(Toolkit):
 
     def get_db_engine(self)-> Engine:
         """Helper method to get a new SQLAlchemy engine."""
-        connection_string = f"postgresql+psycopg2://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
-        return create_engine(connection_string)
+        try:
+            connection_string = f"postgresql+psycopg2://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
+            return create_engine(connection_string)
+        except Exception as e:
+            print(f"Error creating database engine: {e}")
     
     def update_ski_resort_traits_database(self, data:DataFrame = resort_traits_data):
         """
@@ -77,8 +88,12 @@ class ski_resort_traits_sql_toolkit(Toolkit):
         Parameters:
             data (pd.DataFrame): The data to update the database with.
         """
-        engine = self.get_db_engine()
-        resort_traits_data.to_sql(name=self.table_name, con=engine, if_exists='replace', index=False, dtype= self.custom_dtype_dict)
+        try:
+            engine = self.get_db_engine()
+            resort_traits_data.to_sql(name=self.table_name, con=engine, if_exists='replace', index=False, dtype= self.custom_dtype_dict)
+
+        except Exception as e:
+            print(f"Error executing query: {e}")
 
     def query_ski_resort_traits_database(self, query: str) -> List[dict]:
         """
@@ -91,27 +106,31 @@ class ski_resort_traits_sql_toolkit(Toolkit):
         Returns:
             List[dict]: The result of the query as a list of dictionaries.
         """
-        engine = self.get_db_engine()
+        try:
+            engine = self.get_db_engine()
 
-        #creating a sql session with sql engine 
-        Session = sessionmaker(bind=engine)
-        session = Session()
+            #creating a sql session with sql engine 
+            Session = sessionmaker(bind=engine)
+            session = Session()
 
-        #execute query 
-        result = session.execute(text(query))
+            #execute query 
+            result = session.execute(text(query))
 
-        #write result into a list of dictionaries
-        column_names = result.keys()
-        rows_as_dicts = []
-        for row in result:
-            row_dict = {col_name: row[col_name] for col_name in column_names}
-            rows_as_dicts.append(row_dict)
+            #write result into a list of dictionaries
+            column_names = result.keys()
+            rows_as_dicts = []
+            for row in result:
+                row_dict = {col_name: row[col_name] for col_name in column_names}
+                rows_as_dicts.append(row_dict)
 
-        #drop connection to database
-        session.close()
-        engine.dispose()
+            #drop connection to database
+            session.close()
+            engine.dispose()
 
-        return rows_as_dicts
+            return rows_as_dicts
+    
+        except Exception as e:
+            print(f"Error executing query: {e}")
 
 
 
