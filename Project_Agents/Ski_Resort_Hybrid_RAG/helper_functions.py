@@ -80,3 +80,6 @@ def resort_traits_to_sql(data:pd.DataFrame,
         print(f"Data loaded to {table_name} table in the database.")
     except Exception as e:
         print(f"Error loading data to SQL: {e}")
+
+
+
