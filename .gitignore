@@ -6,3 +6,5 @@ data
 *.yml
 __pycache__/
 private_notes.md
+*.csv
+
