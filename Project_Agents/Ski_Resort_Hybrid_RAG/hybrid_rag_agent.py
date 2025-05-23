@@ -3,10 +3,7 @@ from agno.models.openai import OpenAIChat
 
 from pydantic import BaseModel
 
-from agno.knowledge.json import JSONKnowledgeBase
-from agno.vectordb.pgvector import PgVector
-
-from helper_functions import get_db_credentials,create_or_update_db_table,write_json_to_file
+from helper_functions import get_db_credentials,create_or_update_db_table
 
 from sql_toolkit import sql_toolkit
 
