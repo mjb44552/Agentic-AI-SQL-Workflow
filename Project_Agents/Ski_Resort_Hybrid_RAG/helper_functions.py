@@ -1,6 +1,7 @@
 from pathlib import Path
 import pandas as pd
-from sqlalchemy import create_engine, Engine
+from sqlalchemy import Engine
+import json
 
 def read_data(path:Path,custom_usecols:list) -> pd.DataFrame:
     """
@@ -80,6 +81,29 @@ def resort_traits_to_sql(data:pd.DataFrame,
         print(f"Data loaded to {table_name} table in the database.")
     except Exception as e:
         print(f"Error loading data to SQL: {e}")
+
+def get_db_DDL(engine:Engine,table_name:str) -> str:
+    """
+    Get the DDL of the table in the database.
+
+    Parameters:
+        engine (Engine): The sql alchemy engine.
+        table_name (str): The name of the table in the database.
+
+    Returns:
+        json: The DDL of the table stored in json string.
+    """
+    try:
+        with engine.connect() as conn:
+            result = conn.execute(f"SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '{table_name}'")
+            ddl = f"CREATE TABLE {table_name} (\n"
+            for row in result:
+                ddl += f"  {row[0]} {row[1]},\n"
+            ddl = ddl[:-2] + "\n);"
+            return ddl
+    except Exception as e:
+        print(f"Error getting DDL: {e}")
+        return None
 
 
 
