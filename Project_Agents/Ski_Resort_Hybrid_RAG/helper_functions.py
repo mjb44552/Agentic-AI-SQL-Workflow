@@ -1,5 +1,5 @@
 from pathlib import Path
-from pandas import read_csv,DataFrame
+from pandas import read_csv,DataFrame,Series
 from sqlalchemy import create_engine
 import os
 
