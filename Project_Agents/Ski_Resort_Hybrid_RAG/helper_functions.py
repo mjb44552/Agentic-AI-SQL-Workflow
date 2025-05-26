@@ -2,6 +2,8 @@ from pathlib import Path
 from pandas import read_csv,DataFrame,Series
 from sqlalchemy import create_engine
 import os
+from sqlalchemy import VARCHAR
+from agno.document.base import Document
 
 def read_data(path:Path,custom_usecols:list) -> DataFrame:
     """
@@ -136,4 +138,38 @@ def build_sql_query(keyword_dict:dict) -> str:
 
     return sql_query
 
+def get_unique_values_dict(dict:dict, data:DataFrame) -> dict:
+    """
+    Takes a dictionary of column names and their SQLAlchemy types, and returns a dictionary with each 
+    VARCHAR column name as the key and a list of unique values from that column in the DataFrame.
+
+    Parameters:
+        dtype_dict (dict): A dictionary mapping column names to their SQLAlchemy types.
+        data (Dataframe): A Pandas DataFrame. 
+
+    Returns:
+        dict: A dictionary where keys are column names and values are lists of unique values.
+    """
+    unique_values_dict = {}
+    for key, value in dict.items():
+        if value == VARCHAR:
+            unique_values_dict[key] = data[key].unique().tolist()
+    return unique_values_dict
+
+def to_documents(dict: dict) -> list:
+    """
+    Converts a dictionary of into a list of Agno Document objects. The key is used as the name of the document,
+    and the values are the contents of the document.
+
+    Parameters:
+        unique_values_dict (dict): A dictionary where keys are column names and values are lists of unique values.
+
+    Returns:
+        list: A list of Document objects, each containing the unique values for a specific column.
+    """
+    documents = []
+    for key, values in dict.items():
+        content = f"Unique values for {key}: {', '.join(map(str, values))}"
+        documents.append(Document(content=content, name=key + ' column'))
+    return documents
 

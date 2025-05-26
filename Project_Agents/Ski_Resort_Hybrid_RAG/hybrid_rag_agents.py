@@ -1,9 +1,11 @@
 from agno.agent import Agent,RunResponse
 from agno.models.openai import OpenAIChat
+from agno.knowledge.document import DocumentKnowledgeBase,Document
+from agno.vectordb.pgvector import PgVector
 
 from pydantic import BaseModel
 
-from helper_functions import get_db_credentials,create_or_update_db_table,build_sql_query
+from helper_functions import get_db_credentials,create_or_update_db_table,build_sql_query,get_unique_values_dict,to_documents
 
 from sql_toolkit import sql_toolkit
 
@@ -13,6 +15,7 @@ from data_processing import resort_traits_data
 
 print('getting database credentials')
 db_user, db_password, db_host, db_port, db_name = get_db_credentials(database_name="RESORT_TRAITS")
+vctdb_user, vctdb_password, vctdb_host, vctdb_port, vctdb_name = get_db_credentials(database_name="VCT")
 
 dtype_dict={"name": VARCHAR,
             "country": VARCHAR,
@@ -37,6 +40,32 @@ create_or_update_db_table(db_user=db_user,
           dtype_dict=dtype_dict,
           table_name="ski_resorts")
 
+#build document for agno schema 
+schema_doc:list = Document(
+    name="schema",
+    content= ", ".join([f"{str(key)}: {str(value)}" for key, value in dtype_dict.items()])
+)
+
+print('building list of documents for sql_input_agent knowledge base')
+unique_values:dict = get_unique_values_dict(dict=dtype_dict, data=resort_traits_data)
+documents:list = to_documents(dict=unique_values)
+
+#adding schema docs to documents list 
+documents.append(schema_doc)
+
+print('building pgvector knowledge base for sql_input_agent')
+knowledge_base = DocumentKnowledgeBase(
+    documents=documents,
+    vector_db=PgVector(
+        table_name="unique_values",
+        db_url = f"postgresql://{vctdb_user}:{vctdb_password}@{vctdb_host}:{vctdb_port}/{vctdb_name}",
+    ),
+)
+
+#load databse
+print('loading empty document knowledge base')
+knowledge_base.load(recreate=False)
+
 print('defining sql_output response model for sql_input_agent')
 #create output model for AI Agent 
 class sql_output(BaseModel):
@@ -59,14 +88,24 @@ sql_input_agent = Agent(
     goal= """
         To generate a SQL query for a postgres database containing the traits and chatacteristics of ski resorts. 
     """,
-    instructions=f"""
+    instructions=[
+        """
         You are an AI agent that generates SQL queries for a postgres database containing the traits and characteristics of ski resorts.
-        Your response should extract information to answer the question in the user's query. Your response should use the sql_output
-        response model. This means you are only returning the expressions associated with each keyword in a standard SQL query. If a keyword
-        isn't required for the query, you should return an empty string for that keyword. Use your knowledge base to get and understand
-        the database's schema. Here is the schema of the database: 
-        {dtype_dict} 
-    """
+        Your response should extract information to answer the question in the user's query.
+        """,
+        """ 
+        Your response should use the sql_output response model. This means you are only returning the expressions associated with each keyword in a standard SQL query. If a keyword
+        isn't required for the query, you should return an empty string for that keyword.
+        """,
+        """ 
+        Use your knowledge base to understand the schema of the database tables.
+        """,
+        """
+        The user's query will reference specific countries, continents, names or traits of ski resorts. When using
+        these references utalise your knowledge base to find the correct syntax to use in the SQL query. For example, 
+        the 'UK' should be referenced as 'united kingdom' in the SQL query.
+        """
+    ]
 )
 
 print('defining sql_output_agent')
