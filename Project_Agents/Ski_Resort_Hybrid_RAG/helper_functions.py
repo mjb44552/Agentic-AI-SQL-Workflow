@@ -2,7 +2,6 @@ from pathlib import Path
 from pandas import read_csv,DataFrame
 from sqlalchemy import create_engine
 import os
-import json
 
 def read_data(path:Path,custom_usecols:list) -> DataFrame:
     """
@@ -111,5 +110,30 @@ def create_or_update_db_table(db_user:str,db_password:str,db_host:str,db_port:st
     except Exception as e:
         print(f"Error executing query: {e}")
 
+def build_sql_query(keyword_dict:dict) -> str:
+    """
+    Build a SQL query from the keywords dictionary.
+
+    Parameters:
+        keywords (dict): The dictionary containing the keywords for the SQL query.
+
+    Returns:
+        str: The SQL query as a string.
+    """
+    sql_query = ""
+    
+    #iteratively build sql query
+    for keyword in ['SELECT','FROM','WHERE','HAVING','GROUPBY','ORDERBY','LIMIT']:
+        if keyword_dict[keyword] != '':
+            sql_query = f"{sql_query} {str(keyword)} {str(keyword_dict[keyword])} "
+
+    #format sql query 
+    sql_query = sql_query.strip()
+    sql_query = sql_query + ';'
+    sql_query = sql_query.replace('  ', ' ')
+    sql_query = sql_query.replace('ORDERBY', 'ORDER BY')
+    sql_query = sql_query.replace('GROUPBY', 'GROUP BY')
+
+    return sql_query
 
 
