@@ -5,7 +5,7 @@ from pandas import DataFrame
 
 from agno.tools import Toolkit
 
-from sqlalchemy import text, create_engine, Engine
+from sqlalchemy import text, create_engine, Engine, Result
 
 class sql_toolkit(Toolkit):
     """
@@ -46,20 +46,18 @@ class sql_toolkit(Toolkit):
         except Exception as e:
             print(f"Error creating database engine: {e}")
 
-    def parse_sql_response(self, result: str) -> List[dict]:
+    def parse_sql_response(self, result: Result) -> List[dict]:
         """
         Helper method to parse the SQL response into a list of dictionaries.
         
         Parameters:
-            result (str): The SQL response to parse.
+            result (sqlalchemy.engine.Result): The SQL response to parse.
         Returns:
             List[dict]: The parsed SQL response as a list of dictionaries."""
         try:
-            column_names = result.keys()
             rows_as_dicts = []
             for row in result:
-                row_dict = {col_name: row[col_name] for col_name in column_names}
-                rows_as_dicts.append(row_dict)
+                rows_as_dicts.append(row._asdict())
             return rows_as_dicts
         except Exception as e:
             print(f"Error parsing SQL response: {e}")
@@ -88,7 +86,6 @@ class sql_toolkit(Toolkit):
             print('executing query')
             #execute query 
             result = session.execute(text(query))
-            print(result)
 
             print('parsing SQL response')
             #write result into a list of dictionaries

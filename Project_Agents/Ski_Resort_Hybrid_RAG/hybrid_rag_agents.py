@@ -16,11 +16,10 @@ from data_processing import resort_traits_data
 print('getting database credentials')
 db_user, db_password, db_host, db_port, db_name = get_db_credentials(database_name="RESORT_TRAITS")
 vctdb_user, vctdb_password, vctdb_host, vctdb_port, vctdb_name = get_db_credentials(database_name="VCT")
+print(get_db_credentials(database_name="VCT"))
 
 dtype_dict={"name": VARCHAR,
             "country": VARCHAR,
-            "status": VARCHAR,
-            "has_downhill": BOOLEAN,
             "has_nordic": BOOLEAN,
             "downhill_distance_km": FLOAT,
             "nordic_distance_km": FLOAT,
@@ -41,17 +40,21 @@ create_or_update_db_table(db_user=db_user,
           table_name="ski_resorts")
 
 #build document for agno schema 
-schema_doc:list = Document(
+schema_doc = Document(
     name="schema",
-    content= ", ".join([f"{str(key)}: {str(value)}" for key, value in dtype_dict.items()])
+    content= ", ".join(list(dtype_dict.keys())),
+    meta_data={
+        "description": "This document contains the schema of the ski resorts database as a list of column names.",
+    }
 )
 
 print('building list of documents for sql_input_agent knowledge base')
-unique_values:dict = get_unique_values_dict(dict=dtype_dict, data=resort_traits_data)
+unique_values:dict = get_unique_values_dict(columns=['country','continent'], data=resort_traits_data)
 documents:list = to_documents(dict=unique_values)
 
 #adding schema docs to documents list 
 documents.append(schema_doc)
+print(documents)
 
 print('building pgvector knowledge base for sql_input_agent')
 knowledge_base = DocumentKnowledgeBase(
@@ -64,7 +67,7 @@ knowledge_base = DocumentKnowledgeBase(
 
 #load databse
 print('loading empty document knowledge base')
-knowledge_base.load(recreate=False)
+knowledge_base.load(recreate=True)
 
 print('defining sql_output response model for sql_input_agent')
 #create output model for AI Agent 
@@ -84,6 +87,10 @@ print('defining sql_input_agent')
 sql_input_agent = Agent(
     model=OpenAIChat(id="gpt-4o"),
     response_model=sql_output,
+    knowledge=knowledge_base,
+    add_references=True,        #always pull information from vector database and add to user query
+    search_knowledge=False,     #enable agentic rag
+    show_tool_calls=True,
     markdown=True,
     goal= """
         To generate a SQL query for a postgres database containing the traits and chatacteristics of ski resorts. 
@@ -98,7 +105,8 @@ sql_input_agent = Agent(
         isn't required for the query, you should return an empty string for that keyword.
         """,
         """ 
-        Use your knowledge base to understand the schema of the database tables.
+        Use your knowledge base to understand the schema of the database tables ensure you use the correct column names when 
+        building your query.
         """,
         """
         The user's query will reference specific countries, continents, names or traits of ski resorts. When using
@@ -133,7 +141,41 @@ sql_output_agent = Agent(
     markdown=True)
 
 print('running sql_input_agent')
-user_question = "What are the top 5 ski resorts in the united states with the highest max elevation?"
+user_question = "What are the top 5 ski resorts in the United States with the highest max elevation?"
+input_response:RunResponse = sql_input_agent.run(user_question)
+
+print('processing sql_input_agent response')
+keywords:dict = input_response.content.model_dump()
+sql_query:str = build_sql_query(keywords)
+
+print('running sql_output_agent')
+output_query = user_question + '\n' + sql_query
+print(output_query)
+output_response:RunResponse = sql_output_agent.run(output_query)
+print(output_response.content)
+
+
+
+
+print('running sql_input_agent')
+user_question = "What are the 20 ski resorts in the United States with the lowest max elevation return in ascending order?"
+input_response:RunResponse = sql_input_agent.run(user_question)
+
+print('processing sql_input_agent response')
+keywords:dict = input_response.content.model_dump()
+sql_query:str = build_sql_query(keywords)
+
+print('running sql_output_agent')
+output_query = user_question + '\n' + sql_query
+print(output_query)
+output_response:RunResponse = sql_output_agent.run(output_query)
+print(output_response.content)
+
+
+
+
+print('running sql_input_agent')
+user_question = "Return 5 french ski resorts with more than 3 ski lifts and tell me the number of ski lifts at each resort."
 input_response:RunResponse = sql_input_agent.run(user_question)
 
 print('processing sql_input_agent response')

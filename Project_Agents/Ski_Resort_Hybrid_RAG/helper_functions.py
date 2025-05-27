@@ -138,22 +138,21 @@ def build_sql_query(keyword_dict:dict) -> str:
 
     return sql_query
 
-def get_unique_values_dict(dict:dict, data:DataFrame) -> dict:
+def get_unique_values_dict(columns:list, data:DataFrame) -> dict:
     """
     Takes a dictionary of column names and their SQLAlchemy types, and returns a dictionary with each 
     VARCHAR column name as the key and a list of unique values from that column in the DataFrame.
 
     Parameters:
-        dtype_dict (dict): A dictionary mapping column names to their SQLAlchemy types.
+        columns (list): A list of column names. 
         data (Dataframe): A Pandas DataFrame. 
 
     Returns:
         dict: A dictionary where keys are column names and values are lists of unique values.
     """
     unique_values_dict = {}
-    for key, value in dict.items():
-        if value == VARCHAR:
-            unique_values_dict[key] = data[key].unique().tolist()
+    for column in columns:
+        unique_values_dict[column] = data[column].unique().tolist()
     return unique_values_dict
 
 def to_documents(dict: dict) -> list:
@@ -170,6 +169,6 @@ def to_documents(dict: dict) -> list:
     documents = []
     for key, values in dict.items():
         content = f"Unique values for {key}: {', '.join(map(str, values))}"
-        documents.append(Document(content=content, name=key + ' column'))
+        documents.append(Document(name=key + ' column',content=content, ))
     return documents
 
