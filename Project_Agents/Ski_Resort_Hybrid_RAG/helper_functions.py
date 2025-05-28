@@ -1,9 +1,9 @@
 from pathlib import Path
-from pandas import read_csv,DataFrame,Series
+from pandas import read_csv,DataFrame
 from sqlalchemy import create_engine
 import os
-from sqlalchemy import VARCHAR
 from agno.document.base import Document
+from agno.agent import Agent
 
 def read_data(path:Path,custom_usecols:list) -> DataFrame:
     """
@@ -172,3 +172,30 @@ def to_documents(dict: dict) -> list:
         documents.append(Document(name=key + ' column',content=content, ))
     return documents
 
+def query_sql_agents(queries:list,input_agent:Agent,output_agent:Agent,print_response:bool = False) -> list:
+    """
+    Function to run a list of queries through the sql_input_agent and sql_output_agent.
+
+    Parameters:
+        queries (list): A list of queries to run through the agents.
+        print_queries (bool): Whether to print the queries and responses. Default is False.
+        input_agent(Agno.Agent): The agent responsible for processing the input queries.
+        output_agent(Agno.Agent): The agent responsible for generating the SQL queries and processing the output.
+        
+    Returns:
+        results(list): A list of results from the sql_output_agent for each query.
+    """
+    results = []
+    for query in queries:
+        input_response = input_agent.run(query)
+        keywords:dict = input_response.content.model_dump()
+        sql_query:str = build_sql_query(keywords)
+        output_query = query + '\n' + sql_query
+        output_response = output_agent.run(output_query)
+        results.append(output_response.content)
+        if print_response:
+            print(f"Query: {query}")
+            print(f"SQL Query: {sql_query}")
+            print(f"Response: {output_response.content}")
+            print("\n")
+    return results

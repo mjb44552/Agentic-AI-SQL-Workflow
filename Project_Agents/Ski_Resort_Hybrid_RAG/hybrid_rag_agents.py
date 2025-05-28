@@ -5,7 +5,7 @@ from agno.vectordb.pgvector import PgVector
 
 from pydantic import BaseModel
 
-from helper_functions import get_db_credentials,create_or_update_db_table,build_sql_query,get_unique_values_dict,to_documents
+from helper_functions import get_db_credentials,create_or_update_db_table,build_sql_query,get_unique_values_dict,to_documents,query_sql_agents
 
 from sql_toolkit import sql_toolkit
 
@@ -140,50 +140,13 @@ sql_output_agent = Agent(
     """,
     markdown=True)
 
-print('running sql_input_agent')
-user_question = "What are the top 5 ski resorts in the United States with the highest max elevation?"
-input_response:RunResponse = sql_input_agent.run(user_question)
-
-print('processing sql_input_agent response')
-keywords:dict = input_response.content.model_dump()
-sql_query:str = build_sql_query(keywords)
-
-print('running sql_output_agent')
-output_query = user_question + '\n' + sql_query
-print(output_query)
-output_response:RunResponse = sql_output_agent.run(output_query)
-print(output_response.content)
 
 
+practice_queries = ['What are the top 5 ski resorts in the United States with the highest max elevation?',
+                    'What are the top 5 ski resorts in the Canada with the highest vertical drop?',
+                    'What are the top 5 ski resorts in the United Kingdom with the most lifts?',
+                    'What are the top 5 ski resorts in the Europe with the most downhill distance?',
+                    'What are the top 5 ski resorts in the United States with the most nordic distance?']
 
+responses = query_sql_agents(queries=practice_queries,input_agent=sql_input_agent,output_agent=sql_output_agent,print_response=True,)
 
-print('running sql_input_agent')
-user_question = "What are the 20 ski resorts in the United States with the lowest max elevation return in ascending order?"
-input_response:RunResponse = sql_input_agent.run(user_question)
-
-print('processing sql_input_agent response')
-keywords:dict = input_response.content.model_dump()
-sql_query:str = build_sql_query(keywords)
-
-print('running sql_output_agent')
-output_query = user_question + '\n' + sql_query
-print(output_query)
-output_response:RunResponse = sql_output_agent.run(output_query)
-print(output_response.content)
-
-
-
-
-print('running sql_input_agent')
-user_question = "Return 5 french ski resorts with more than 3 ski lifts and tell me the number of ski lifts at each resort."
-input_response:RunResponse = sql_input_agent.run(user_question)
-
-print('processing sql_input_agent response')
-keywords:dict = input_response.content.model_dump()
-sql_query:str = build_sql_query(keywords)
-
-print('running sql_output_agent')
-output_query = user_question + '\n' + sql_query
-print(output_query)
-output_response:RunResponse = sql_output_agent.run(output_query)
-print(output_response.content)
