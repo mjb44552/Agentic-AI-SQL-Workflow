@@ -92,7 +92,7 @@ def get_db_credentials(database_name)-> tuple:
         print(f"Error getting database credentials: {e}")
         return None
     
-def create_or_update_db_table(db_user:str,db_password:str,db_host:str,db_port:str,db_name:str,data:DataFrame,dtype_dict:dict,table_name:str) -> None:
+def load_db_table(db_user:str,db_password:str,db_host:str,db_port:str,db_name:str,data:DataFrame,dtype_dict:dict,table_name:str) -> None:
     """
     Update the database with the new data.
 

@@ -1,21 +1,12 @@
-from agno.agent import Agent,RunResponse
+from agno.agent import Agent
 from agno.models.openai import OpenAIChat
-from agno.knowledge.document import DocumentKnowledgeBase,Document
-from agno.vectordb.pgvector import PgVector
-
 from pydantic import BaseModel
-
-from helper_functions import get_db_credentials,create_or_update_db_table,get_unique_values_dict,to_documents,query_sql_agents
-
+from helper_functions import query_sql_agents
 from sql_toolkit import sql_toolkit
-
 from sqlalchemy import VARCHAR, BOOLEAN, FLOAT, INTEGER
-
-from data_processing import resort_traits_data 
-
-print('getting database credentials')
-db_user, db_password, db_host, db_port, db_name = get_db_credentials(database_name="RESORT_TRAITS")
-vctdb_user, vctdb_password, vctdb_host, vctdb_port, vctdb_name = get_db_credentials(database_name="VCT")
+from input_knowledge_base import build_input_sql_agent_knowledge_base
+from output_knowledge_base import update_output_sql_agent_database
+from data_processing import resort_traits_data
 
 dtype_dict={"name": VARCHAR,
             "country": VARCHAR,
@@ -28,44 +19,10 @@ dtype_dict={"name": VARCHAR,
             "lift_count": INTEGER,
             'continent': VARCHAR}
 
-print('updating database table with resort traits data')
-create_or_update_db_table(db_user=db_user,
-          db_password=db_password,
-          db_host=db_host,
-          db_port=db_port,
-          db_name=db_name,
-          data=resort_traits_data,
-          dtype_dict=dtype_dict,
-          table_name="ski_resorts")
+#vctdb credentials is a dictionary with the keys: user, password, host, port, database
+knowledge_base, vctdb_credentials= build_input_sql_agent_knowledge_base(dtype_dict=dtype_dict,database_name="VCT",debug_mode=False)
 
-#build document for agno schema 
-schema_doc = Document(
-    name="schema",
-    content= ", ".join(list(dtype_dict.keys())),
-    meta_data={
-        "description": "This document contains the schema of the ski resorts database as a list of column names.",
-    }
-)
-
-print('building list of documents for sql_input_agent knowledge base')
-unique_values:dict = get_unique_values_dict(columns=['country','continent'], data=resort_traits_data)
-documents:list = to_documents(dict=unique_values)
-
-#adding schema docs to documents list 
-documents.append(schema_doc)
-
-print('building pgvector knowledge base for sql_input_agent')
-knowledge_base = DocumentKnowledgeBase(
-    documents=documents,
-    vector_db=PgVector(
-        table_name="unique_values",
-        db_url = f"postgresql://{vctdb_user}:{vctdb_password}@{vctdb_host}:{vctdb_port}/{vctdb_name}",
-    ),
-)
-
-#load databse
-print('loading empty document knowledge base')
-knowledge_base.load(recreate=True)
+db_credentials = update_output_sql_agent_database(dtype_dict=dtype_dict, database_name="Resort_Traits", new_data=resort_traits_data, debug_mode=False)
 
 print('defining sql_output response model for sql_input_agent')
 #create output model for AI Agent 
@@ -80,6 +37,10 @@ class sql_output(BaseModel):
     GROUPBY: str
     ORDERBY: str
     LIMIT: str
+
+#load databse
+print('loading empty document knowledge base')
+knowledge_base.load(recreate=True)
 
 print('defining sql_input_agent')
 sql_input_agent = Agent(
@@ -120,11 +81,11 @@ sql_output_agent = Agent(
     model=OpenAIChat(id="gpt-4o"),
     show_tool_calls=True,
     tools= [sql_toolkit(
-        db_user=db_user,
-        db_password=db_password,
-        db_host=db_host,
-        db_port=db_port,
-        db_name=db_name,
+        db_user= db_credentials['user'],
+        db_password= db_credentials['password'],
+        db_host= db_credentials['host'],
+        db_port= db_credentials['port'],
+        db_name= db_credentials['database'],
         dtype_dict=dtype_dict,
         table_name="ski_resorts")],
     goal= """
@@ -138,11 +99,5 @@ sql_output_agent = Agent(
     """,
     markdown=True)
 
-practice_queries = ['What are the top 5 ski resorts in the United States with the highest max elevation?',
-                    'What are the top 5 ski resorts in the Canada with the highest vertical drop?',
-                    'What are the top 5 ski resorts in the United Kingdom with the most lifts?',
-                    'What are the top 5 ski resorts in the Europe with the most downhill distance?',
-                    'What are the top 5 ski resorts in the United States with the most nordic distance?']
 
-responses = query_sql_agents(queries=practice_queries,input_agent=sql_input_agent,output_agent=sql_output_agent,print_response=True)
 
