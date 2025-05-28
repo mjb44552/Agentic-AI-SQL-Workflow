@@ -5,7 +5,7 @@ from agno.vectordb.pgvector import PgVector
 
 from pydantic import BaseModel
 
-from helper_functions import get_db_credentials,create_or_update_db_table,build_sql_query,get_unique_values_dict,to_documents,query_sql_agents
+from helper_functions import get_db_credentials,create_or_update_db_table,get_unique_values_dict,to_documents,query_sql_agents
 
 from sql_toolkit import sql_toolkit
 
@@ -16,7 +16,6 @@ from data_processing import resort_traits_data
 print('getting database credentials')
 db_user, db_password, db_host, db_port, db_name = get_db_credentials(database_name="RESORT_TRAITS")
 vctdb_user, vctdb_password, vctdb_host, vctdb_port, vctdb_name = get_db_credentials(database_name="VCT")
-print(get_db_credentials(database_name="VCT"))
 
 dtype_dict={"name": VARCHAR,
             "country": VARCHAR,
@@ -54,7 +53,6 @@ documents:list = to_documents(dict=unique_values)
 
 #adding schema docs to documents list 
 documents.append(schema_doc)
-print(documents)
 
 print('building pgvector knowledge base for sql_input_agent')
 knowledge_base = DocumentKnowledgeBase(
@@ -140,13 +138,11 @@ sql_output_agent = Agent(
     """,
     markdown=True)
 
-
-
 practice_queries = ['What are the top 5 ski resorts in the United States with the highest max elevation?',
                     'What are the top 5 ski resorts in the Canada with the highest vertical drop?',
                     'What are the top 5 ski resorts in the United Kingdom with the most lifts?',
                     'What are the top 5 ski resorts in the Europe with the most downhill distance?',
                     'What are the top 5 ski resorts in the United States with the most nordic distance?']
 
-responses = query_sql_agents(queries=practice_queries,input_agent=sql_input_agent,output_agent=sql_output_agent,print_response=True,)
+responses = query_sql_agents(queries=practice_queries,input_agent=sql_input_agent,output_agent=sql_output_agent,print_response=True)
 

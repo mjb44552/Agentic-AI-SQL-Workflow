@@ -199,3 +199,18 @@ def query_sql_agents(queries:list,input_agent:Agent,output_agent:Agent,print_res
             print(f"Response: {output_response.content}")
             print("\n")
     return results
+
+def NaN_to_zero(data:DataFrame,columns:list) -> DataFrame:
+    """
+    Convert NaN values in specified columns of a DataFrame to zero.
+
+    Parameters:
+        data (pd.DataFrame): The DataFrame to be processed.
+        columns (list): The list of columns in which NaN values should be replaced with zero.
+
+    Returns:
+        pd.DataFrame: The DataFrame with NaN values replaced by zero in the specified columns.
+    """
+    for col in columns:
+        data[col] = data[col].fillna(0)
+    return data

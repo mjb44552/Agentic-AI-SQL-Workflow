@@ -1,15 +1,13 @@
 from pathlib import Path
 import pandas as pd
-from helper_functions import read_data, clean_string_values, clean_bool_values
+from helper_functions import read_data, clean_string_values, clean_bool_values,NaN_to_zero
 
 resort_path = Path(r'Data\ski_areas.csv')
 country_continent_path = Path(r'Data\country_continent.csv')
 
-
 resort_use_cols = ['name','country','status','has_downhill','has_nordic','downhill_distance_km',
             'nordic_distance_km','vertical_m','min_elevation_m','max_elevation_m',
             'lift_count']
-
 
 #read and set columns for country_continent data
 country_continent_data = pd.read_csv(filepath_or_buffer = country_continent_path,usecols = ['Country','Continent'])
@@ -28,7 +26,6 @@ resort_traits_data['lift_count'] = resort_traits_data['lift_count'].astype('Int6
 
 #clean strings in country_continent data
 country_continent_data = clean_string_values(data = country_continent_data,columns = ['country','continent'])
-
 resort_traits_data = pd.merge(resort_traits_data, country_continent_data,on='country', how='inner')
 
 #filtering data 
@@ -48,6 +45,9 @@ resort_traits_data = resort_traits_data[has_valid_ski_lift_entry_mask & has_non_
 #remove ski resorts that don't have a valid name
 has_valid_name_mask = resort_traits_data['name'] != ''
 resort_traits_data = resort_traits_data[has_valid_name_mask]
+
+#convert cells with NaN in numerical columns to 0 
+resort_traits_data = NaN_to_zero(data=resort_traits_data, columns=['downhill_distance_km', 'nordic_distance_km', 'vertical_m', 'min_elevation_m', 'max_elevation_m'])
 
 resort_traits_data.reset_index(drop=True,inplace=True)
 
