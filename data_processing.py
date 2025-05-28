@@ -2,8 +2,8 @@ from pathlib import Path
 import pandas as pd
 from helper_functions import read_data, clean_string_values, clean_bool_values,NaN_to_zero
 
-resort_path = Path(r'Data\ski_areas.csv')
-country_continent_path = Path(r'Data\country_continent.csv')
+resort_path = Path(r'data\ski_areas.csv')
+country_continent_path = Path(r'data\country_continent.csv')
 
 resort_use_cols = ['name','country','status','has_downhill','has_nordic','downhill_distance_km',
             'nordic_distance_km','vertical_m','min_elevation_m','max_elevation_m',
