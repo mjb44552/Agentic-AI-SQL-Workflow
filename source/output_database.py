@@ -13,16 +13,11 @@ def update_output_sql_agent_database(dtype_dict:dict, database_name:str, new_dat
         debug_mode (bool): If True, print debug information.
     """
     #accessing postgres sql database credentials
-    if debug_mode:
-        print('getting database credentials')
+    if debug_mode:print('getting database credentials')
     db_credentials = get_db_credentials(database_name=database_name)
 
     #reloading the table in the database with the new resort traits data
-    if debug_mode:
-        print('updating database table with resort traits data')
-    load_db_table(db_credentials,
-            data=new_data,
-            dtype_dict=dtype_dict,
-            table_name="ski_resorts")
+    if debug_mode:print('updating database table with resort traits data')
+    load_db_table(db_credentials,data=new_data,dtype_dict=dtype_dict,table_name="ski_resorts")
     return db_credentials
     

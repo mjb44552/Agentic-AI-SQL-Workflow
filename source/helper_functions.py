@@ -209,3 +209,34 @@ def NaN_to_zero(data:DataFrame,columns:list) -> DataFrame:
     for col in columns:
         data[col] = data[col].fillna(0)
     return data
+
+def get_input_sql_agent_documents(data:DataFrame,dtype_dict:dict,debug_mode:bool = False) -> list:
+    """
+    Build a list of documents for the sql_input_agent knowledge base.
+    
+    Parameters:
+        data (pd.DataFrame): The DataFrame containing the data in the sql_input_agent's knowledge base.
+        dtype_dict (dict): Dictionary mapping column names to SQLAlchemy types.
+        debug_mode (bool): If True, print debug information.
+    """
+    #build document for agno schema
+    if debug_mode: 
+        print('building schema document for sql_input_agent knowledge base')
+    schema_doc = Document(
+        name="schema",
+        content= ", ".join(list(dtype_dict.keys())),
+        meta_data={
+            "description": "This document contains the schema of the ski resorts database as a list of column names.",
+        }
+    )
+
+    #building documents containing unique values in database
+    if debug_mode: 
+        print('building list of documents for sql_input_agent knowledge base')
+    unique_values:dict = get_unique_values_dict(columns=['country','continent'], data=data)
+    documents:list = to_documents(dict=unique_values)
+
+    #adding schema docs to documents list 
+    documents.append(schema_doc)
+
+    return documents
