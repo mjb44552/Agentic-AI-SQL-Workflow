@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from source.helper_functions import query_sql_agents
 from source.sql_toolkit import sql_toolkit
 from sqlalchemy import VARCHAR, BOOLEAN, FLOAT, INTEGER
-from source.input_knowledge_base import build_input_sql_agent_knowledge_base
+from source.input_knowledgebase import build_input_sql_agent_knowledge_base
 from source.output_database import update_output_sql_agent_database
 from source.data_processing import resort_traits_data
 
