@@ -75,30 +75,23 @@ class sql_toolkit(Toolkit):
             List[dict]: The result of the query as a list of dictionaries.
         """
         try:
-            print('building database engine')
             engine = self.get_db_engine()
 
-            print('creating a session with the database engine')
             #creating a sql session with sql engine 
             Session = sessionmaker(bind=engine)
             session = Session()
 
-            print('executing query')
             #execute query 
             result = session.execute(text(query))
 
-            print('parsing SQL response')
             #write result into a list of dictionaries
             result_as_dict = self.parse_sql_response(result)
             print(result_as_dict)
 
-            print('closing session and disposing of the engine')
             #drop connection to database
             session.close()
             engine.dispose()
 
-            print('printing result as dict')
-            print(result_as_dict)
             return result_as_dict
     
         except Exception as e:

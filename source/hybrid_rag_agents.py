@@ -23,7 +23,6 @@ knowledge_base, vctdb_credentials= build_input_sql_agent_knowledge_base(dtype_di
 
 db_credentials = update_output_sql_agent_database(dtype_dict=dtype_dict, database_name="DB", new_data=resort_traits_data, debug_mode=True)
 
-print('defining sql_output response model for sql_input_agent')
 #create output model for AI Agent 
 class sql_output(BaseModel):
     """
@@ -38,10 +37,9 @@ class sql_output(BaseModel):
     LIMIT: str
 
 #load databse
-print('loading empty document knowledge base')
 knowledge_base.load(recreate=True)
 
-print('defining sql_input_agent')
+#defining the sql_input_agent
 sql_input_agent = Agent(
     model=OpenAIChat(id="gpt-4o"),
     response_model=sql_output,
@@ -74,7 +72,6 @@ sql_input_agent = Agent(
     ]
 )
 
-print('defining sql_output_agent')
 #instantiate the hybrid rag agent with the sql_toolkit
 sql_output_agent = Agent(
     model=OpenAIChat(id="gpt-4o"),
