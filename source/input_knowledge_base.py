@@ -1,5 +1,5 @@
-from data_processing import resort_traits_data
-from helper_functions import get_db_credentials,get_unique_values_dict,to_documents
+from source.data_processing import resort_traits_data
+from source.helper_functions import get_db_credentials,get_unique_values_dict,to_documents
 from agno.knowledge.document import DocumentKnowledgeBase,Document
 from agno.vectordb.pgvector import PgVector
 

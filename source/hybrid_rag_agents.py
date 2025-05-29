@@ -1,12 +1,12 @@
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 from pydantic import BaseModel
-from helper_functions import query_sql_agents
-from sql_toolkit import sql_toolkit
+from source.helper_functions import query_sql_agents
+from source.sql_toolkit import sql_toolkit
 from sqlalchemy import VARCHAR, BOOLEAN, FLOAT, INTEGER
-from input_knowledge_base import build_input_sql_agent_knowledge_base
-from output_knowledge_base import update_output_sql_agent_database
-from data_processing import resort_traits_data
+from source.input_knowledge_base import build_input_sql_agent_knowledge_base
+from source.output_knowledge_base import update_output_sql_agent_database
+from source.data_processing import resort_traits_data
 
 dtype_dict={"name": VARCHAR,
             "country": VARCHAR,

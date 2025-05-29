@@ -1,5 +1,5 @@
-from hybrid_rag_agents import sql_input_agent, sql_output_agent
-from helper_functions import query_sql_agents
+from source.hybrid_rag_agents import sql_input_agent, sql_output_agent
+from source.helper_functions import query_sql_agents
 
 practice_queries = ['What are the top 5 ski resorts in the United States with the highest max elevation?',
                     'What are the top 5 ski resorts in the Canada with the highest vertical drop?',

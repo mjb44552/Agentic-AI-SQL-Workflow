@@ -1,6 +1,6 @@
 
 from pandas import DataFrame
-from helper_functions import get_db_credentials, load_db_table
+from source.helper_functions import get_db_credentials, load_db_table
 
 def update_output_sql_agent_database(dtype_dict:dict, database_name:str, new_data:DataFrame,debug_mode:bool=False) -> None:
     """
