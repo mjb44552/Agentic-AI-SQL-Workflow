@@ -2,3 +2,5 @@ agno==1.5.5
 pandas==2.2.3
 pydantic==2.11.5
 SQLAlchemy==2.0.29
+openai==1.82.0
+pgvector==0.4.1
