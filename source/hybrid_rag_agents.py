@@ -9,14 +9,14 @@ from .data_processing import resort_traits_data
 
 dtype_dict={"name": VARCHAR,
             "country": VARCHAR,
-            "has_nordic": BOOLEAN,
+            'continent': VARCHAR,
             "downhill_distance_km": FLOAT,
             "nordic_distance_km": FLOAT,
             "vertical_m": FLOAT,
             "min_elevation_m": FLOAT,
             "max_elevation_m": FLOAT,
             "lift_count": INTEGER,
-            'continent': VARCHAR}
+            }
 
 #vctdb credentials is a dictionary with the keys: user, password, host, port, database
 knowledge_base, vctdb_credentials= build_input_sql_agent_knowledge_base(dtype_dict=dtype_dict,database_name="VCTDB",debug_mode=True)

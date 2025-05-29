@@ -19,5 +19,6 @@ def update_output_sql_agent_database(dtype_dict:dict, database_name:str, new_dat
     #reloading the table in the database with the new resort traits data
     if debug_mode:print('updating database table with resort traits data')
     load_db_table(db_credentials,data=new_data,dtype_dict=dtype_dict,table_name="ski_resorts")
+    
     return db_credentials
     
