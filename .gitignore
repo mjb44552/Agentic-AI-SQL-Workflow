@@ -7,5 +7,4 @@ data
 __pycache__/
 private_notes.md
 *.csv
-config
 
