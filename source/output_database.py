@@ -1,6 +1,6 @@
 
 from pandas import DataFrame
-from source.helper_functions import get_db_credentials, load_db_table
+from .helper_functions import get_db_credentials, load_db_table
 
 def update_output_sql_agent_database(dtype_dict:dict, database_name:str, new_data:DataFrame,debug_mode:bool=False) -> None:
     """
@@ -15,23 +15,12 @@ def update_output_sql_agent_database(dtype_dict:dict, database_name:str, new_dat
     #accessing postgres sql database credentials
     if debug_mode:
         print('getting database credentials')
-    db_user, db_password, db_host, db_port, db_name = get_db_credentials(database_name=database_name)
-    db_credentials = {
-        'user': db_user,
-        'password': db_password,
-        'host': db_host,
-        'port': db_port,
-        'database': db_name
-    }
+    db_credentials = get_db_credentials(database_name=database_name)
 
     #reloading the table in the database with the new resort traits data
     if debug_mode:
         print('updating database table with resort traits data')
-    load_db_table(db_user=db_user,
-            db_password=db_password,
-            db_host=db_host,
-            db_port=db_port,
-            db_name=db_name,
+    load_db_table(db_credentials,
             data=new_data,
             dtype_dict=dtype_dict,
             table_name="ski_resorts")

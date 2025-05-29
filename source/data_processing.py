@@ -1,6 +1,6 @@
 from pathlib import Path
 import pandas as pd
-from source.helper_functions import read_data, clean_string_values, clean_bool_values,NaN_to_zero
+from .helper_functions import read_data, clean_string_values, clean_bool_values,NaN_to_zero
 
 resort_path = Path(r'data\ski_areas.csv')
 country_continent_path = Path(r'data\country_continent.csv')

@@ -1,11 +1,11 @@
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 from pydantic import BaseModel
-from sql_toolkit import sql_toolkit
+from .sql_toolkit import sql_toolkit
 from sqlalchemy import VARCHAR, BOOLEAN, FLOAT, INTEGER
-from input_knowledgebase import build_input_sql_agent_knowledge_base
-from output_database import update_output_sql_agent_database
-from data_processing import resort_traits_data
+from .input_knowledgebase import build_input_sql_agent_knowledge_base
+from .output_database import update_output_sql_agent_database
+from .data_processing import resort_traits_data
 
 dtype_dict={"name": VARCHAR,
             "country": VARCHAR,
@@ -19,9 +19,9 @@ dtype_dict={"name": VARCHAR,
             'continent': VARCHAR}
 
 #vctdb credentials is a dictionary with the keys: user, password, host, port, database
-knowledge_base, vctdb_credentials= build_input_sql_agent_knowledge_base(dtype_dict=dtype_dict,database_name="VCT",debug_mode=False)
+knowledge_base, vctdb_credentials= build_input_sql_agent_knowledge_base(dtype_dict=dtype_dict,database_name="VCTDB",debug_mode=True)
 
-db_credentials = update_output_sql_agent_database(dtype_dict=dtype_dict, database_name="db", new_data=resort_traits_data, debug_mode=False)
+db_credentials = update_output_sql_agent_database(dtype_dict=dtype_dict, database_name="DB", new_data=resort_traits_data, debug_mode=True)
 
 print('defining sql_output response model for sql_input_agent')
 #create output model for AI Agent 

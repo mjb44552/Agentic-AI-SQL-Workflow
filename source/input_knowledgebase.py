@@ -1,5 +1,5 @@
-from source.data_processing import resort_traits_data
-from source.helper_functions import get_db_credentials,get_unique_values_dict,to_documents
+from .data_processing import resort_traits_data
+from .helper_functions import get_db_credentials,get_unique_values_dict,to_documents
 from agno.knowledge.document import DocumentKnowledgeBase,Document
 from agno.vectordb.pgvector import PgVector
 
@@ -9,12 +9,7 @@ def build_input_sql_agent_knowledge_base(dtype_dict:dict,database_name:str,debug
     if debug_mode: 
         print('getting database credentials')
 
-    vctdb_user, vctdb_password, vctdb_host, vctdb_port, vctdb_name = get_db_credentials(database_name=database_name)
-    vctdb_credentials ={'user': vctdb_user,
-                        'password': vctdb_password,
-                        'host': vctdb_host,
-                        'port': vctdb_port,
-                        'database': vctdb_name}
+    vctdb_credentials:dict = get_db_credentials(database_name=database_name)
 
     #build document for agno schema
     if debug_mode: 
@@ -46,7 +41,7 @@ def build_input_sql_agent_knowledge_base(dtype_dict:dict,database_name:str,debug
         documents=documents,
         vector_db=PgVector(
             table_name="unique_values",
-            db_url = f"postgresql://{vctdb_user}:{vctdb_password}@{vctdb_host}:{vctdb_port}/{vctdb_name}",
+            db_url = f"postgresql://{vctdb_credentials['user']}:{vctdb_credentials['password']}@{vctdb_credentials['host']}:{vctdb_credentials['port']}/{vctdb_credentials['database']}",
         ),
     )
 

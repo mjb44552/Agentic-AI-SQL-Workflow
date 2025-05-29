@@ -62,7 +62,7 @@ def clean_string_values(data:DataFrame,columns:list) -> DataFrame:
         data[col] = data[col].str.lower()
     return data
 
-def get_db_credentials(database_name)-> tuple:
+def get_db_credentials(database_name)-> dict:
     """
     Get the database credentials from environment variables.
 
@@ -70,43 +70,38 @@ def get_db_credentials(database_name)-> tuple:
         database_name (str): The name of the database which in the .env file is the prefix for the environment variable (i.e. abcd_DB_USER).
 
     Returns:
-        db_credentials(tuple): The database credentials as a tuple.
+        db_credentials(dict): The databse credentials stored in a dictionary.
     """
     try:
-        #access environment variables
-        db_user = os.getenv(f"{database_name}_DB_USER")
-        db_password = os.getenv(f"{database_name}_DB_PASSWORD")
-        db_host = os.getenv(f"{database_name}_DB_HOST")
-        db_port = os.getenv(f"{database_name}_DB_PORT")
-        db_name = os.getenv(f"{database_name}_DB_NAME")
+        db_credentials = {
+            'user': os.getenv(f"{database_name}_USER"),
+            'password': os.getenv(f"{database_name}_PASSWORD"),
+            'host': os.getenv(f"{database_name}_HOST"),
+            'port': os.getenv(f"{database_name}_PORT"),
+            'database': os.getenv(f"{database_name}_NAME")
+        }
 
         # Check if all required environment variables are set
-        for db_credential in [db_user, db_password, db_host, db_port, db_name]:
+        for db_credential in db_credentials.values():
             if db_credential is None:
                 raise ValueError(f"Database credentials are incorrect")
         
-        #return the database credentials if there are no errors
-        db_credentials = (db_user, db_password, db_host, db_port, db_name)
         return db_credentials
     except Exception as e:
         print(f"Error getting database credentials: {e}")
         return None
     
-def load_db_table(db_user:str,db_password:str,db_host:str,db_port:str,db_name:str,data:DataFrame,dtype_dict:dict,table_name:str) -> None:
+def load_db_table(db_credentials:dict,data:DataFrame,dtype_dict:dict,table_name:str) -> None:
     """
     Update the database with the new data.
 
     Parameters:
-        db_user (str): Database username.
-        db_password (str): Database password.
-        db_host (str): Database host.
-        db_port (str): Database port.
-        db_name (str): Database name.
+        db_credentials (dict): Dictionary containing the database credentials.
         data (pd.DataFrame): Data to be used for updating the database.
         dtype_dict (dict): Dictionary mapping column names to SQLAlchemy types.
     """
     try:
-        connection_string = f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+        connection_string = f"postgresql+psycopg2://{db_credentials['user']}:{db_credentials['password']}@{db_credentials['host']}:{db_credentials['port']}/{db_credentials['database']}"
         engine =  create_engine(connection_string)
         data.to_sql(name=table_name, con=engine, if_exists='replace', index=False, dtype= dtype_dict)
     except Exception as e:
