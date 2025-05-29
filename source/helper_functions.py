@@ -173,9 +173,9 @@ def query_sql_agents(queries:list,input_agent:Agent,output_agent:Agent,print_res
 
     Parameters:
         queries (list): A list of queries to run through the agents.
-        print_queries (bool): Whether to print the queries and responses. Default is False.
         input_agent(Agno.Agent): The agent responsible for processing the input queries.
         output_agent(Agno.Agent): The agent responsible for generating the SQL queries and processing the output.
+        print_queries (bool): Whether to print the queries and responses. Default is False.
         
     Returns:
         results(list): A list of results from the sql_output_agent for each query.
