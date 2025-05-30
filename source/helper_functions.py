@@ -187,8 +187,8 @@ def query_sql_agents(queries:list,
                dictionary keys are:
                 1.user_query(str): The original user query.
                 2.response_text(str or None): The previous response from the sql_output_agent, if available.
-                3.attempts(int or None): The number of attempts made to generate a response, if available.
-                4.error(bool or None): Indicates if an error occurred during the previous attempt, if available.
+                3.attempts(int): The number of attempts made to generate a response, if available.
+                4.error(bool): Indicates if an error occurred during the previous attempt, if available.
         print_response (bool): Whether to print the queries and responses. Default is False.
         print_progress (bool): Whether to print the messages outlining the progress of the agents. Default is False.
         
@@ -264,11 +264,13 @@ def build_sql_input_agent_query(user_query:str,sql_input_agent_respone:Optional[
     Returns:
         input_query (str): The input query for the sql_input_agent as a string representation of a dictionary.
     """
+    #building sql_input_agent's query when a previous attempt has already been made
     if sql_input_agent_respone:
         sql_input_agent_respone['user_query'] = user_query
         input_query =  str(sql_input_agent_respone)
+    #building sql_input_agent's first query when no previous attempt has been made
     else:
-        input_query = str({'user_query': user_query})
+        input_query = str({'user_query': user_query,'response_text': None, 'attempts': 0, 'error': False})
     return input_query
 
 def NaN_to_zero(data:DataFrame,columns:list) -> DataFrame:
@@ -328,5 +330,3 @@ def get_input_sql_agent_documents(data:DataFrame,columns:list,dtype_dict:dict,de
     documents.append(schema_doc)
 
     return documents
-
-# 2. Improve sql_input_agents instructions to anticipate additional information about a failed query. 

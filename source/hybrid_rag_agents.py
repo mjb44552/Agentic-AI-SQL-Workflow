@@ -80,6 +80,7 @@ sql_input_agent = Agent(
 sql_output_agent = Agent(
     model=OpenAIChat(id="gpt-4o"),
     show_tool_calls=False,
+    response_model=sql_output_agent_response_model,
     tools= [sql_toolkit(
         db_user= db_credentials['user'],
         db_password= db_credentials['password'],
