@@ -166,7 +166,7 @@ def to_documents(dict: dict) -> list:
         documents.append(Document(name=key + ' column',content=content, ))
     return documents
 
-def query_sql_agents(queries:list,input_agent:Agent,output_agent:Agent,print_response:bool = False,print_progess:bool=False) -> list:
+def query_sql_agents(queries:list,input_agent:Agent,output_agent:Agent,max_number_attempts:int=3,print_response:bool = False,print_progess:bool=False) -> list:
     """
     Function to run a list of queries through the sql_input_agent and sql_output_agent.
 
@@ -174,6 +174,7 @@ def query_sql_agents(queries:list,input_agent:Agent,output_agent:Agent,print_res
         queries (list): A list of queries to run through the agents.
         input_agent(Agno.Agent): The agent responsible for processing the input queries.
         output_agent(Agno.Agent): The agent responsible for generating the SQL queries and processing the output.
+        max_number_attempts (int): The maximum number of attempts to run the agents. Default is 3.
         print_response (bool): Whether to print the queries and responses. Default is False.
         print_progress (bool): Whether to print the messages outlining the progress of the agents. Default is False.
         
@@ -183,11 +184,11 @@ def query_sql_agents(queries:list,input_agent:Agent,output_agent:Agent,print_res
     results = []
     for user_query in queries:
         #run the sql_input_agent
-        if print_progess: print(f"Running sqlinput_agent with user query.")
+        if print_progess: print(f"Running sql_input_agent with user query.")
         input_response = input_agent.run(user_query)
 
         #extracting keywords from the sql_input_agent's response
-        if print_progess: print(f"Extracting keywords from sqlinput_agent's response.")
+        if print_progess: print(f"Extracting keywords from sql_input_agent's response.")
         keywords:dict = input_response.content.model_dump()
 
         #build the sql query for the sql_output_agent
@@ -199,9 +200,19 @@ def query_sql_agents(queries:list,input_agent:Agent,output_agent:Agent,print_res
         if print_progess: print(f"Running sql_output_agent with SQL query.")
         output_response = output_agent.run(output_query)
 
+        # extract the SQL data from the sql_output_agent's response
+        if print_progess: print(f"Extracting SQL data from sql_output_agent's response.")
+        sql_data:dict = input_response.content.model_dump()
+
+        #check if the sql_output_agent's response contains an error
+        
+        #rerun the query_sql_agents function using only the current user query
+
+
         #print final response to user_query 
         if print_progess: print('Printing response to user query.')
-        results.append(output_response.content)
+
+        results.append(result)
         if print_response:
             print(f"User Query: {user_query}\n")
             print(f"SQL Query: {sql_query}\n")
@@ -259,9 +270,15 @@ def get_input_sql_agent_documents(data:DataFrame,columns:list,dtype_dict:dict,de
     for column in columns:
         unique_values_dict[column] = data[column].unique().tolist()
 
+    #converting the unique values of each column stored in a dictionary to a list of documents
     documents:list = to_documents(dict=unique_values_dict)
 
     #adding schema docs to documents list 
     documents.append(schema_doc)
 
     return documents
+
+# 1. Create verification of sql_output_agent's response function
+# 2. Improve sql_input_agents instructions to anticipate additional information about a failed query. 
+# 3. Write a seperate function that prints the final list of results from all the users queries. 
+# 4. Improve run_sql_agents to handle recursive attempts at failed queries.  
