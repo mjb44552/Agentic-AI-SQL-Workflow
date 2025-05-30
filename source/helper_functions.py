@@ -4,6 +4,8 @@ from sqlalchemy import create_engine
 import os
 from agno.document.base import Document
 from agno.agent import Agent
+import re
+import string
 
 def read_data(path:Path,custom_usecols:list) -> DataFrame:
     """
@@ -46,7 +48,7 @@ def clean_bool_values(data:DataFrame,columns:list) -> DataFrame:
         data.loc[nan_mask, col] = False
     return data
 
-def clean_string_values(data:DataFrame,columns:list) -> DataFrame:
+def clean_string_values(data: DataFrame, columns: list) -> DataFrame:
     """
     Clean the string values in the dataframe.
 
@@ -54,6 +56,7 @@ def clean_string_values(data:DataFrame,columns:list) -> DataFrame:
     - Stripping whitespace from the beginning and end of the string.
     - Converting the string to lowercase.
     - Removing spaces from the string.
+    - Removing all punctuation symbols from the string.
 
     Parameters:
         data (pd.DataFrame): The dataframe to be cleaned.
@@ -62,10 +65,17 @@ def clean_string_values(data:DataFrame,columns:list) -> DataFrame:
     Returns:
         pd.DataFrame: The cleaned dataframe.
     """
+    # Create a regular expression pattern to match any punctuation character.
+    punctuation_pattern = re.compile(f"[{re.escape(string.punctuation)}]")
+
     for col in columns:
+        # Ensure the column is of string type to apply string methods
+        data[col] = data[col].astype(str)
         data[col] = data[col].str.strip()
         data[col] = data[col].str.lower()
-        data[col] = data[col].str.replace(' ','')
+        data[col] = data[col].str.replace(' ', '')
+        # Add punctuation removal
+        data[col] = data[col].str.replace(punctuation_pattern, '', regex=True)
     return data
 
 def get_db_credentials(database_name)-> dict:

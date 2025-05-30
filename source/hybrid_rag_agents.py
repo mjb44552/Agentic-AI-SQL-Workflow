@@ -72,7 +72,7 @@ sql_input_agent = Agent(
         """,
         """
         Columns with datatypes VARCHAR have been preprocessed. This involved stripping whitespace from the beginning and 
-        end of the string, converting the string to lowercase and removing spaces from the string.
+        end of the string, converting the string to lowercase, removing all punctuation characters and removing spaces from the string.
         """,
         """
         Be aware that the name of ski resorts in the database may not match the name in the user's query exactly. For example, The 
