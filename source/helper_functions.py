@@ -183,7 +183,7 @@ def to_documents(dict: dict) -> list:
         documents.append(Document(name=key + ' column',content=content, ))
     return documents
 
-def query_sql_agents(queries:list,input_agent:Agent,output_agent:Agent,print_response:bool = False) -> list:
+def query_sql_agents(queries:list,input_agent:Agent,output_agent:Agent,print_response:bool = False,print_progess:bool=False) -> list:
     """
     Function to run a list of queries through the sql_input_agent and sql_output_agent.
 
@@ -191,21 +191,36 @@ def query_sql_agents(queries:list,input_agent:Agent,output_agent:Agent,print_res
         queries (list): A list of queries to run through the agents.
         input_agent(Agno.Agent): The agent responsible for processing the input queries.
         output_agent(Agno.Agent): The agent responsible for generating the SQL queries and processing the output.
-        print_queries (bool): Whether to print the queries and responses. Default is False.
+        print_response (bool): Whether to print the queries and responses. Default is False.
+        print_progress (bool): Whether to print the messages outlining the progress of the agents. Default is False.
         
     Returns:
         results(list): A list of results from the sql_output_agent for each query.
     """
     results = []
-    for query in queries:
-        input_response = input_agent.run(query)
+    for user_query in queries:
+        #run the sql_input_agent
+        if print_progess: print(f"Running sqlinput_agent with user query.")
+        input_response = input_agent.run(user_query)
+
+        #extracting keywords from the sql_input_agent's response
+        if print_progess: print(f"Extracting keywords from sqlinput_agent's response.")
         keywords:dict = input_response.content.model_dump()
+
+        #build the sql query for the sql_output_agent
+        if print_progess: print(f"Building SQL query from keywords.")
         sql_query:str = build_sql_query(keywords)
-        output_query = query + '\n' + sql_query
+        output_query = user_query + '\n' + sql_query
+
+        #run the sql_output_agent
+        if print_progess: print(f"Running sql_output_agent with SQL query.")
         output_response = output_agent.run(output_query)
+
+        #print final response to user_query 
+        if print_progess: print('Printing response to user query.')
         results.append(output_response.content)
         if print_response:
-            print(f"Query: {query}\n")
+            print(f"User Query: {user_query}\n")
             print(f"SQL Query: {sql_query}\n")
             print(f"Response: {output_response.content}\n")
             print("\n")
