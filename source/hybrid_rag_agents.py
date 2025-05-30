@@ -1,8 +1,8 @@
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
-from pydantic import BaseModel
+from.agent_output_models import sql_input_agent_response_model, sql_output_agent_response_model
 from .sql_toolkit import sql_toolkit
-from sqlalchemy import VARCHAR, BOOLEAN, FLOAT, INTEGER
+from sqlalchemy import VARCHAR, FLOAT, INTEGER
 from .input_knowledgebase import build_input_sql_agent_knowledge_base
 from .output_database import update_output_sql_agent_database
 from .data_processing import resort_traits_data
@@ -23,26 +23,13 @@ knowledge_base, vctdb_credentials= build_input_sql_agent_knowledge_base(dtype_di
 
 db_credentials = update_output_sql_agent_database(dtype_dict=dtype_dict, database_name="DB", new_data=resort_traits_data, debug_mode=False)
 
-#create output model for AI Agent 
-class sql_output(BaseModel):
-    """
-    Class to hold the variables for the SQL query.
-    """
-    SELECT: str
-    FROM: str
-    WHERE: str
-    HAVING: str
-    GROUPBY: str
-    ORDERBY: str
-    LIMIT: str
-
 #load databse
 knowledge_base.load(recreate=True)
 
 #defining the sql_input_agent
 sql_input_agent = Agent(
     model=OpenAIChat(id="gpt-4o"),
-    response_model=sql_output,
+    response_model=sql_input_agent_response_model,
     knowledge=knowledge_base,
     add_references=True,        #always pull information from vector database and add to user query
     search_knowledge=False,     #enable agentic rag
