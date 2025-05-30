@@ -83,7 +83,7 @@ def get_db_credentials(database_name)-> dict:
     Get the database credentials from environment variables.
 
     Parameters:
-        database_name (str): The name of the database which in the .env file is the prefix for the environment variable (i.e. abcd_DB_USER).
+        database_name (str):  Database name in .env file. This value is the prefix for the environment variable (i.e. abcd_USER).
 
     Returns:
         db_credentials(dict): The databse credentials stored in a dictionary.
