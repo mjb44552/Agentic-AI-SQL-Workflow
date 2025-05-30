@@ -6,6 +6,7 @@ from agno.document.base import Document
 from agno.agent import Agent
 import re
 import string
+from typing import Optional
 
 def read_data(path:Path,custom_usecols:list) -> DataFrame:
     """
@@ -166,7 +167,13 @@ def to_documents(dict: dict) -> list:
         documents.append(Document(name=key + ' column',content=content, ))
     return documents
 
-def query_sql_agents(queries:list,input_agent:Agent,output_agent:Agent,max_number_attempts:int=3,print_response:bool = False,print_progess:bool=False) -> list:
+def query_sql_agents(queries:list,
+                     input_agent:Agent,
+                     output_agent:Agent,
+                     max_number_attempts:int=3,
+                     sql_output_agent_response:Optional[dict] = None,
+                     print_response:bool = False,
+                     print_progess:bool=False) -> list:
     """
     Function to run a list of queries through the sql_input_agent and sql_output_agent.
 
@@ -175,6 +182,13 @@ def query_sql_agents(queries:list,input_agent:Agent,output_agent:Agent,max_numbe
         input_agent(Agno.Agent): The agent responsible for processing the input queries.
         output_agent(Agno.Agent): The agent responsible for generating the SQL queries and processing the output.
         max_number_attempts (int): The maximum number of attempts to run the agents. Default is 3.
+        sql_output_agent_response (optional[dict]): The response from the sql_input_agent. Default is None. If dict is provided, it is
+               used to pass a incorrect response from the sql_output_agent into the query_sql_agents function for another attempt.The 
+               dictionary keys are:
+                1.user_query(str): The original user query.
+                2.response_text(str or None): The previous response from the sql_output_agent, if available.
+                3.attempts(int or None): The number of attempts made to generate a response, if available.
+                4.error(bool or None): Indicates if an error occurred during the previous attempt, if available.
         print_response (bool): Whether to print the queries and responses. Default is False.
         print_progress (bool): Whether to print the messages outlining the progress of the agents. Default is False.
         
@@ -183,42 +197,79 @@ def query_sql_agents(queries:list,input_agent:Agent,output_agent:Agent,max_numbe
     """
     results = []
     for user_query in queries:
-        #run the sql_input_agent
+        # building the sql_input_agent's query - if applicable using the previous sql_output_agent's response
+        if print_progess: print(f"Building sql_input_agent's query from user query")
+        sql_input_agent_query = build_sql_input_agent_query(user_query,sql_output_agent_response)
+
+        # run the sql_input_agent
         if print_progess: print(f"Running sql_input_agent with user query.")
-        input_response = input_agent.run(user_query)
+        sql_input_agent_response = input_agent.run(sql_input_agent_query)
 
-        #extracting keywords from the sql_input_agent's response
+        # extracting keywords from the sql_input_agent's response
         if print_progess: print(f"Extracting keywords from sql_input_agent's response.")
-        keywords:dict = input_response.content.model_dump()
+        keywords:dict = sql_input_agent_response.content.model_dump()
 
-        #build the sql query for the sql_output_agent
+        # build the sql query for the sql_output_agent
         if print_progess: print(f"Building SQL query from keywords.")
         sql_query:str = build_sql_query(keywords)
-        output_query = user_query + '\n' + sql_query
+        sql_output_agent_query = user_query + '\n' + sql_query
 
-        #run the sql_output_agent
+        # run the sql_output_agent
         if print_progess: print(f"Running sql_output_agent with SQL query.")
-        output_response = output_agent.run(output_query)
-
-        # extract the SQL data from the sql_output_agent's response
-        if print_progess: print(f"Extracting SQL data from sql_output_agent's response.")
-        sql_data:dict = input_response.content.model_dump()
-
-        #check if the sql_output_agent's response contains an error
+        sql_output_agent_response = output_agent.run(sql_output_agent_query)
         
-        #rerun the query_sql_agents function using only the current user query
+        # converting sql_output_agent's response into a dictionary
+        if print_progess: print(f"Extracting SQL data from sql_output_agent's response.")
+        sql_output_agent_response:dict = sql_output_agent_response.content.model_dump()
 
+        # check if the sql_output_agent's response contains an error
+        if print_progess: print(f"Checking if sql_output_agent's response contains an error.")
+        if sql_output_agent_response['error'] == True:
+            # rerun the query_sql_agents function for another attempt
+            sql_output_agent_response['attempts'] += 1
+            while sql_output_agent_response['attempts'] < max_number_attempts:
+                result = query_sql_agents(queries = [sql_input_agent_query],
+                                          input_agent=input_agent,
+                                          output_agent=output_agent,
+                                          max_number_attempts=1,
+                                          sql_output_agent_response=sql_output_agent_response['sql_query'],
+                                          print_response=print_response,
+                                          print_progess=print_progess)
 
-        #print final response to user_query 
+        # print final response to user_query 
         if print_progess: print('Printing response to user query.')
-
         results.append(result)
         if print_response:
             print(f"User Query: {user_query}\n")
             print(f"SQL Query: {sql_query}\n")
-            print(f"Response: {output_response.content}\n")
+            print(f"Response: {sql_output_agent_response['response_text']}\n")
             print("\n")
     return results
+
+def build_sql_input_agent_query(user_query:str,sql_input_agent_respone:Optional[dict] = None) -> str:
+    """
+    Build the input query for the sql_input_agent. This function takes the user query and the previous response from the sql_input_agent 
+    (if available) and builds the input query for the sql_input_agent. It returns a string representation of the input query which 
+    is a dictionary with the following keys:
+    - user_query(str): The original user query.
+    - response_text(str or None): The previous response from the sql_output_agent, if available.
+    - attempts(int or None): The number of attempts made to generate a response, if available.
+    - error(bool or None): Indicates if an error occurred during the previous attempt, if available.
+
+    Parameters:
+        user_query (str): The original user query.
+        sql_input_agent_respone (optional[dict]): The response from the sql_input_agent. Default is None. If dict is provided, it is
+               used to pass a incorrect response from the sql_output_agent into the build_input_query function for another attempt.
+    
+    Returns:
+        input_query (str): The input query for the sql_input_agent as a string representation of a dictionary.
+    """
+    if sql_input_agent_respone:
+        sql_input_agent_respone['user_query'] = user_query
+        input_query =  str(sql_input_agent_respone)
+    else:
+        input_query = str({'user_query': user_query})
+    return input_query
 
 def NaN_to_zero(data:DataFrame,columns:list) -> DataFrame:
     """
@@ -278,7 +329,4 @@ def get_input_sql_agent_documents(data:DataFrame,columns:list,dtype_dict:dict,de
 
     return documents
 
-# 1. Create verification of sql_output_agent's response function
 # 2. Improve sql_input_agents instructions to anticipate additional information about a failed query. 
-# 3. Write a seperate function that prints the final list of results from all the users queries. 
-# 4. Improve run_sql_agents to handle recursive attempts at failed queries.  

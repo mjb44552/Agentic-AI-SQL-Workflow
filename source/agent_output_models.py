@@ -25,6 +25,6 @@ class sql_output_agent_response_model(BaseModel):
     - error: A boolean indicating if an error occurred during the process.
     """
     sql_query: str
-    response: str
+    response_text: str
     attempts: int
     error:bool
