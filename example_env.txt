@@ -1,0 +1,16 @@
+# OpenAI API Key
+OPENAI_API_KEY=your_openai_key_here
+
+# Database (db) Credentials
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=db
+DB_USER=db
+DB_PASSWORD=db1234
+
+# Vector Database (vctdb) Credentials
+VCTDB_HOST=localhost
+VCTDB_PORT=5533
+VCTDB_NAME=vctdb
+VCTDB_USER=vctdb
+VCTDB_PASSWORD=vctdb1234
