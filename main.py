@@ -1,5 +1,5 @@
 from source.hybrid_rag_agents import sql_input_agent, sql_output_agent
-from source.helper_functions import query_sql_agents
+from source.query_agents import query_sql_agents
 
 practice_queries = ['What is the elevation of breckonridge and vail Ski resorts?']
 
