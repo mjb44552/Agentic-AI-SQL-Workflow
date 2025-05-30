@@ -5,6 +5,15 @@ class sql_input_agent_response_model(BaseModel):
     Class outlining the response for the sql_input_agent.
     This class defines the structure of the expressions the AI 
     agent will generate for each keyword in the sql query.
+
+    It includes:
+    - SELECT: The columns to select in the SQL query.
+    - FROM: The table to select from in the SQL query.
+    - WHERE: The conditions to filter the results in the SQL query.
+    - HAVING: The conditions to filter the results after aggregation in the SQL query.
+    - GROUPBY: The columns to group the results by in the SQL query.
+    - ORDERBY: The columns to order the results by in the SQL query.
+    - LIMIT: The maximum number of results to return in the SQL query.
     """
     SELECT: str
     FROM: str

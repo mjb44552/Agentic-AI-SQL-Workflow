@@ -55,7 +55,7 @@ def query_sql_agents(queries:list,
 
     return results
 
-def run_sql_agent_workflow(user_query:str,input_agent:Agent,output_agent:Agent,previous_sql_queries,print_progess:bool=False):
+def run_sql_agent_workflow(user_query:str,input_agent:Agent,output_agent:Agent,previous_sql_queries=None,print_progess:bool=False):
     """
     A function to run the sql_input_agent and sql_output_agent workflow.
 
@@ -106,7 +106,7 @@ def run_sql_agent_workflow(user_query:str,input_agent:Agent,output_agent:Agent,p
 def run_new_attempts(user_query:str,previous_sql_queries:list,input_agent:Agent,output_agent:Agent,max_number_attempts:int=3,print_progess:bool=False):
     """
     Function to run the sql_input_agent and sql_output_agent workflow for a new attempt.This function is used when the sql_output_agent's 
-    response contains an error, indicating that the SQL query was not generated correctly. This function uses recursion to rerun attempts
+    response contains an error, indicating that the SQL query was not generated correctly. This function uses a while loop to rerun attempts
     until it reaches its maximum number of attempts. This function is called after 1st attempt failed so it starts with the second attempt
     and with the first sql query passed to it as a list. 
 
@@ -145,7 +145,7 @@ def run_new_attempts(user_query:str,previous_sql_queries:list,input_agent:Agent,
             break
         
         # if the sql_output_agent's response contains an error, increment attempts and add the previous sql query to the list
-        if print_progess: print(f"SQL query generation failed. Attempting to generate a new SQL query.")
+        if print_progess: print(f"new SQL query generation failed. Attempting to generate a new SQL query.")
         attempts += 1
         previous_sql_queries.append(sql_output_agent_response['sql_query'])
 
