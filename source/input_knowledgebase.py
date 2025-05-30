@@ -20,7 +20,7 @@ def build_input_sql_agent_knowledge_base(dtype_dict:dict,database_name:str,debug
         vector_db=PgVector(
             table_name="unique_values",
             db_url = f"postgresql://{vctdb_credentials['user']}:{vctdb_credentials['password']}@{vctdb_credentials['host']}:{vctdb_credentials['port']}/{vctdb_credentials['database']}",
-        ),
+        )
     )
 
     return knowledge_base, vctdb_credentials

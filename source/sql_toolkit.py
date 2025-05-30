@@ -86,7 +86,6 @@ class sql_toolkit(Toolkit):
 
             #write result into a list of dictionaries
             result_as_dict = self.parse_sql_response(result)
-            print(result_as_dict)
 
             #drop connection to database
             session.close()

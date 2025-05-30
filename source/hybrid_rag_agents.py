@@ -19,9 +19,9 @@ dtype_dict={"name": VARCHAR,
             }
 
 #vctdb credentials is a dictionary with the keys: user, password, host, port, database
-knowledge_base, vctdb_credentials= build_input_sql_agent_knowledge_base(dtype_dict=dtype_dict,database_name="VCTDB",debug_mode=True)
+knowledge_base, vctdb_credentials= build_input_sql_agent_knowledge_base(dtype_dict=dtype_dict,database_name="VCTDB",debug_mode=False)
 
-db_credentials = update_output_sql_agent_database(dtype_dict=dtype_dict, database_name="DB", new_data=resort_traits_data, debug_mode=True)
+db_credentials = update_output_sql_agent_database(dtype_dict=dtype_dict, database_name="DB", new_data=resort_traits_data, debug_mode=False)
 
 #create output model for AI Agent 
 class sql_output(BaseModel):
@@ -46,8 +46,9 @@ sql_input_agent = Agent(
     knowledge=knowledge_base,
     add_references=True,        #always pull information from vector database and add to user query
     search_knowledge=False,     #enable agentic rag
-    show_tool_calls=True,
+    show_tool_calls=False,
     markdown=True,
+    debug_mode=False,
     goal= """
         To generate a SQL query for a postgres database containing the traits and chatacteristics of ski resorts. 
     """,
@@ -68,6 +69,15 @@ sql_input_agent = Agent(
         The user's query will reference specific countries, continents, names or traits of ski resorts. When using
         these references utalise your knowledge base to find the correct syntax to use in the SQL query. For example, 
         the 'UK' should be referenced as 'united kingdom' in the SQL query.
+        """,
+        """
+        Columns with datatypes VARCHAR have been preprocessed. This involved stripping whitespace from the beginning and 
+        end of the string, converting the string to lowercase and removing spaces from the string.
+        """,
+        """
+        Be aware that the name of ski resorts in the database may not match the name in the user's query exactly. For example, The 
+        user may input 'Copper' but the database stores 'Copper Mountain'. Search if the users ski resort name is a substring of the name 
+        in the database.
         """
     ]
 )
@@ -75,7 +85,7 @@ sql_input_agent = Agent(
 #instantiate the hybrid rag agent with the sql_toolkit
 sql_output_agent = Agent(
     model=OpenAIChat(id="gpt-4o"),
-    show_tool_calls=True,
+    show_tool_calls=False,
     tools= [sql_toolkit(
         db_user= db_credentials['user'],
         db_password= db_credentials['password'],
@@ -84,6 +94,7 @@ sql_output_agent = Agent(
         db_name= db_credentials['database'],
         dtype_dict=dtype_dict,
         table_name="ski_resorts")],
+    debug_mode=False,
     goal= """
         To use the sql_toolkit to run SQL queries on a postgres database and then summarise the results in a human-readable format. 
     """,

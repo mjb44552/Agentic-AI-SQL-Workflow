@@ -50,6 +50,11 @@ def clean_string_values(data:DataFrame,columns:list) -> DataFrame:
     """
     Clean the string values in the dataframe.
 
+    This involves:
+    - Stripping whitespace from the beginning and end of the string.
+    - Converting the string to lowercase.
+    - Removing spaces from the string.
+
     Parameters:
         data (pd.DataFrame): The dataframe to be cleaned.
         columns (list): The list of columns to be cleaned.
@@ -60,6 +65,7 @@ def clean_string_values(data:DataFrame,columns:list) -> DataFrame:
     for col in columns:
         data[col] = data[col].str.strip()
         data[col] = data[col].str.lower()
+        data[col] = data[col].str.replace(' ','')
     return data
 
 def get_db_credentials(database_name)-> dict:
@@ -189,9 +195,9 @@ def query_sql_agents(queries:list,input_agent:Agent,output_agent:Agent,print_res
         output_response = output_agent.run(output_query)
         results.append(output_response.content)
         if print_response:
-            print(f"Query: {query}")
-            print(f"SQL Query: {sql_query}")
-            print(f"Response: {output_response.content}")
+            print(f"Query: {query}\n")
+            print(f"SQL Query: {sql_query}\n")
+            print(f"Response: {output_response.content}\n")
             print("\n")
     return results
 
