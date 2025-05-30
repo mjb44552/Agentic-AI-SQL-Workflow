@@ -1,10 +1,10 @@
-from .data_processing import resort_traits_data
 from .helper_functions import get_db_credentials, get_input_sql_agent_documents
-from agno.knowledge.document import DocumentKnowledgeBase,Document
+from agno.knowledge.document import DocumentKnowledgeBase
 from agno.vectordb.pgvector import PgVector
 from typing import Tuple, List
+from pandas import DataFrame
 
-def build_input_sql_agent_knowledge_base(dtype_dict:dict,database_name:str,columns:List[str],debug_mode:bool = False) -> Tuple[DocumentKnowledgeBase, dict]:
+def build_input_sql_agent_knowledge_base(new_data:DataFrame,dtype_dict:dict,database_name:str,columns:List[str],debug_mode:bool = False) -> Tuple[DocumentKnowledgeBase, dict]:
     """
     This function builds the knowledge base for the sql_input_agent.
     The purpose of the knowledge base is to provide the sql_input_agent with the necessary information to generate SQL queries.
@@ -12,10 +12,11 @@ def build_input_sql_agent_knowledge_base(dtype_dict:dict,database_name:str,colum
     knowledge base the agent knows that in the column, 'country' the 'United States' is referred to as 'united states' in the database.
 
     It uses the data which will be loaded into the sql_output_agent's database and creates two types of documents which are:
-    1. Documents containing the unique values for each column in the columns parameter. 
-    2. A document containing the schema of the database table.
+        1. Documents containing the unique values for each column in the columns parameter. 
+        2. A document containing the schema of the database table.
 
     Parameters:
+        new_data (DataFrame): DataFrame containing the data to be used for building the knowledge base.
         dtype_dict (dict): Dictionary mapping column names to SQLAlchemy types.
         database_name (str): Database name in .env file. This value is the prefix for the environment variable (i.e. abcd_USER).
         columns (List[str]): List of columns whose unique values will be used to create documents for the knowledge base.
@@ -32,7 +33,7 @@ def build_input_sql_agent_knowledge_base(dtype_dict:dict,database_name:str,colum
 
     #get list of documents for knowledge base
     if debug_mode: print('building documents list for sql_input_agent knowledge base')
-    documents:list = get_input_sql_agent_documents(data = resort_traits_data,
+    documents:list = get_input_sql_agent_documents(data = new_data,
                                                    columns=columns,
                                                    dtype_dict=dtype_dict,
                                                    debug_mode=debug_mode)

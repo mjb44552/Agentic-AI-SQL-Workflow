@@ -229,6 +229,10 @@ def NaN_to_zero(data:DataFrame,columns:list) -> DataFrame:
 def get_input_sql_agent_documents(data:DataFrame,columns:list,dtype_dict:dict,debug_mode:bool = False) -> list:
     """
     Build a list of documents for the sql_input_agent knowledge base.
+
+    The purpose of the knowledge base is to provide the sql_input_agent with the necessary information to generate SQL queries.
+    Specifically, it helps the agent add syntactically correct SQL expressions to the query it generates. For example, with this
+    knowledge base the agent knows that in the column, 'country' the 'United States' is referred to as 'united states' in the database.
     
     Parameters:
         data (pd.DataFrame): The DataFrame containing the data in the sql_input_agent's knowledge base.
@@ -237,7 +241,7 @@ def get_input_sql_agent_documents(data:DataFrame,columns:list,dtype_dict:dict,de
         debug_mode (bool): If True, print debug information.
 
     Returns:
-        list: A list of Document objects containing the schema and unique values from the DataFrame.
+        documents(list): A list of Document objects containing the schema and unique values from the DataFrame.
     """
     #build document for agno schema
     if debug_mode: print('building schema document for sql_input_agent knowledge base')

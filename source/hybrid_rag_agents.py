@@ -19,7 +19,8 @@ dtype_dict={"name": VARCHAR,
             }
 
 #vctdb credentials is a dictionary with the keys: user, password, host, port, database
-knowledge_base, vctdb_credentials = build_input_sql_agent_knowledge_base(dtype_dict=dtype_dict,
+knowledge_base, vctdb_credentials = build_input_sql_agent_knowledge_base(new_data=resort_traits_data,
+                                                                        dtype_dict=dtype_dict,
                                                                         database_name="VCTDB",
                                                                         columns=['country','continent'],
                                                                         debug_mode=False)
