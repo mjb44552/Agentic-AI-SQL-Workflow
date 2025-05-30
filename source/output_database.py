@@ -2,7 +2,7 @@
 from pandas import DataFrame
 from .helper_functions import get_db_credentials, load_db_table
 
-def update_output_sql_agent_database(dtype_dict:dict, database_name:str,table_name:str,new_data:DataFrame,debug_mode:bool=False) -> dict:
+def build_output_sql_agent_database(dtype_dict:dict, database_name:str,table_name:str,new_data:DataFrame,debug_mode:bool=False) -> dict:
     """
     Update the database with the new data.
     This function automatically drops exsisting tables in the database and creates a new table with the new data.

@@ -4,7 +4,7 @@ from.agent_output_models import sql_input_agent_response_model, sql_output_agent
 from .sql_toolkit import sql_toolkit
 from sqlalchemy import VARCHAR, FLOAT, INTEGER
 from .input_knowledgebase import build_input_sql_agent_knowledge_base
-from .output_database import update_output_sql_agent_database
+from .output_database import build_output_sql_agent_database
 from .data_processing import resort_traits_data
 
 dtype_dict={"name": VARCHAR,
@@ -19,10 +19,13 @@ dtype_dict={"name": VARCHAR,
             }
 
 #vctdb credentials is a dictionary with the keys: user, password, host, port, database
-knowledge_base, vctdb_credentials= build_input_sql_agent_knowledge_base(dtype_dict=dtype_dict,database_name="VCTDB",debug_mode=False)
+knowledge_base, vctdb_credentials = build_input_sql_agent_knowledge_base(dtype_dict=dtype_dict,
+                                                                        database_name="VCTDB",
+                                                                        columns=['country','continent'],
+                                                                        debug_mode=False)
 
 #db credentials is a dictionary with the keys: user, password, host, port, database
-db_credentials = update_output_sql_agent_database(dtype_dict=dtype_dict, 
+db_credentials = build_output_sql_agent_database(dtype_dict=dtype_dict, 
                                                   database_name="DB",
                                                   table_name= 'ski_resorts',
                                                   new_data=resort_traits_data, 
