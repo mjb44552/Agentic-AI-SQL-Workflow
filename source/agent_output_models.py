@@ -24,7 +24,7 @@ class sql_output_agent_response_model(BaseModel):
     - attempts: The number of attempts the agent made to generate a response.
     - error: A boolean indicating if an error occurred during the process.
     """
+    user_query: str
     sql_query: str
     response_text: str
-    attempts: int
     error:bool
