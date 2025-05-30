@@ -149,23 +149,6 @@ def build_sql_query(keyword_dict:dict) -> str:
 
     return sql_query
 
-def get_unique_values_dict(columns:list, data:DataFrame) -> dict:
-    """
-    Takes a dictionary of column names and their SQLAlchemy types, and returns a dictionary with each 
-    VARCHAR column name as the key and a list of unique values from that column in the DataFrame.
-
-    Parameters:
-        columns (list): A list of column names. 
-        data (Dataframe): A Pandas DataFrame. 
-
-    Returns:
-        dict: A dictionary where keys are column names and values are lists of unique values.
-    """
-    unique_values_dict = {}
-    for column in columns:
-        unique_values_dict[column] = data[column].unique().tolist()
-    return unique_values_dict
-
 def to_documents(dict: dict) -> list:
     """
     Converts a dictionary of into a list of Agno Document objects. The key is used as the name of the document,
@@ -270,8 +253,13 @@ def get_input_sql_agent_documents(data:DataFrame,columns:list,dtype_dict:dict,de
 
     #building documents containing unique values in database
     if debug_mode: print('building list of documents for sql_input_agent knowledge base')
-    unique_values:dict = get_unique_values_dict(columns=columns, data=data)
-    documents:list = to_documents(dict=unique_values)
+
+    #storing the unique values of each column in the data to a dictionary
+    unique_values_dict = {}
+    for column in columns:
+        unique_values_dict[column] = data[column].unique().tolist()
+
+    documents:list = to_documents(dict=unique_values_dict)
 
     #adding schema docs to documents list 
     documents.append(schema_doc)
