@@ -71,8 +71,8 @@ sql_input_agent = Agent(
         the 'UK' should be referenced as 'united kingdom' in the SQL query.
         """,
         """
-        Columns with datatypes VARCHAR have been preprocessed. This involved stripping whitespace from the beginning and 
-        end of the string, converting the string to lowercase, removing all punctuation characters and removing spaces from the string.
+        Columns with data types VARCHAR have been preprocessed. This involved removing all spaces from the string, converting the 
+        string to lowercase, removing all punctuation characters.
         """,
         """
         Be aware that the name of ski resorts in the database may not match the name in the user's query exactly. For example, The 
