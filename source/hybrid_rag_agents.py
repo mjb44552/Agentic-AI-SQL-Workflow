@@ -21,10 +21,8 @@ dtype_dict={"name": VARCHAR,
 #vctdb credentials is a dictionary with the keys: user, password, host, port, database
 knowledge_base, vctdb_credentials= build_input_sql_agent_knowledge_base(dtype_dict=dtype_dict,database_name="VCTDB",debug_mode=False)
 
+#db credentials is a dictionary with the keys: user, password, host, port, database
 db_credentials = update_output_sql_agent_database(dtype_dict=dtype_dict, database_name="DB", new_data=resort_traits_data, debug_mode=False)
-
-#load databse
-knowledge_base.load(recreate=True)
 
 #defining the sql_input_agent
 sql_input_agent = Agent(

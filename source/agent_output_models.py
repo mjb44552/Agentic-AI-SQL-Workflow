@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 
-
 class sql_input_agent_response_model(BaseModel):
     """
     Class outlining the response for the sql_input_agent.
