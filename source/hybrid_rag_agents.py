@@ -26,9 +26,10 @@ knowledge_base, vctdb_credentials = build_input_sql_agent_knowledge_base(new_dat
                                                                         debug_mode=False)
 
 #db credentials is a dictionary with the keys: user, password, host, port, database
+db_table_name = 'ski_resorts'
 db_credentials = build_output_sql_agent_database(dtype_dict=dtype_dict, 
                                                   database_name="DB",
-                                                  table_name= 'ski_resorts',
+                                                  table_name= db_table_name,
                                                   new_data=resort_traits_data, 
                                                   debug_mode=False)
 
@@ -86,7 +87,7 @@ sql_output_agent = Agent(
         db_port= db_credentials['port'],
         db_name= db_credentials['database'],
         dtype_dict=dtype_dict,
-        table_name="ski_resorts")],
+        table_name=db_table_name)],
     debug_mode=False,
     goal= """
         To use the sql_toolkit to run SQL queries on a postgres database and then summarise the results in a human-readable format. 
