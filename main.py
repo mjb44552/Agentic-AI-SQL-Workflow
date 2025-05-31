@@ -12,3 +12,5 @@ responses = query_sql_agents(queries=practice_queries,
 
 print(responses)
 
+#add handling for when max number of attempts is reached and no correct response is generated
+#ensure that in print progress the fact that the number of max attempts has been reached is printed
