@@ -38,9 +38,7 @@ sql_input_agent = Agent(
     model=OpenAIChat(id="gpt-4o"),
     response_model=sql_input_agent_response_model,
     knowledge=knowledge_base,
-    add_references=False,        #always pull information from vector database and add to user query
-    search_knowledge=True,     #enable agentic rag
-    show_tool_calls=False,
+    add_references=True,        #always pull information from vector database and add to user query
     markdown=True,
     debug_mode=False,
     goal= """
