@@ -80,6 +80,7 @@ def run_sql_agent_workflow(user_query:str,input_agent:Agent,output_agent:Agent,p
     # building the sql_input_agent's query - if applicable using the previous sql_output_agent's response
     if print_progess: print(f"Building sql_input_agent's query from user query")
     #sql_input_agent_query is JSON-formatted python string
+    # keys: 'user_query' and 'sql_queries'
     sql_input_agent_query:str = build_sql_input_agent_query(user_query=user_query,
                                                         previous_sql_queries=previous_sql_queries)
 
@@ -90,11 +91,10 @@ def run_sql_agent_workflow(user_query:str,input_agent:Agent,output_agent:Agent,p
     # extracting keywords from the sql_input_agent's response
     if print_progess: print(f"Extracting keywords from sql_input_agent's response.")
     keywords:dict = sql_input_agent_response.content.model_dump()
-    print(keywords)
 
     # build the sql query for the sql_output_agent
     if print_progess: print(f"Building SQL query from keywords.")
-    sql_query:str = build_sql_query(keyword_dict=keywords)
+    sql_query:str = user_query + '\n' + build_sql_query(keyword_dict=keywords)
 
     # run the sql_output_agent
     if print_progess: print(f"Running sql_output_agent with SQL query.")
@@ -141,7 +141,7 @@ def run_new_attempts(user_query:str,previous_sql_queries:list,input_agent:Agent,
                                                             output_agent=output_agent,
                                                             previous_sql_queries=previous_sql_queries,
                                                             print_progess=print_progess)
-        
+        attempts += 1
         # check if the sql_output_agent's response contains an error
         if sql_output_agent_response['error'] == False:
             if print_progess: print(f"SQL query generated successfully after {attempts} attempts.")
@@ -149,7 +149,6 @@ def run_new_attempts(user_query:str,previous_sql_queries:list,input_agent:Agent,
         
         # if the sql_output_agent's response contains an error, increment attempts and add the previous sql query to the list
         if print_progess: print(f"new SQL query generation failed. Attempting to generate a new SQL query.")
-        attempts += 1
         previous_sql_queries.append(sql_output_agent_response['sql_query'])
 
     return sql_output_agent_response
