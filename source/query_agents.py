@@ -36,7 +36,9 @@ def query_sql_agents(queries:list,
 
         # check if the sql_output_agent's response contains an error
         if sql_output_agent_response['error'] == True:
-            if print_progess: print(f"Error in sql_output_agent's response. Attempting to generate a new SQL query.")
+            if print_progess: 
+                print(f"Incorrect query: {sql_output_agent_response['sql_query']}") 
+                print("Attempting to generate a new SQL query.")
             sql_output_agent_response:dict = run_new_attempts(user_query=user_query,
                                                          previous_sql_queries=[sql_output_agent_response['sql_query']],
                                                          input_agent=input_agent,
@@ -142,7 +144,11 @@ def run_new_attempts(user_query:str,previous_sql_queries:list,input_agent:Agent,
             break
         
         # if the sql_output_agent's response contains an error, increment attempts and add the previous sql query to the list
-        if print_progess: print(f"New SQL query generation failed. Attempting to generate a new SQL query.")
+        if print_progess:
+            print(f"Incorrect query: {sql_output_agent_response['sql_query']}") 
+            print("Attempting to generate a new SQL query.")
+        
+        # if the sql_output_agent's response contains an error, add the previous sql query the list of incorrect queries
         previous_sql_queries.append(sql_output_agent_response['sql_query'])
 
     return sql_output_agent_response

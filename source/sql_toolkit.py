@@ -85,16 +85,16 @@ class sql_toolkit(Toolkit):
             result = session.execute(text(query))
 
             #write result into a list of dictionaries
-            result_as_dict = self.parse_sql_response(result)
+            rows_as_dict:list = self.parse_sql_response(result)
 
-            #drop connection to database
-            session.close()
-            engine.dispose()
-
-            return result_as_dict
-    
+            return rows_as_dict
+        
         except Exception as e:
-            print(f"Error executing query: {e}")
+            return []
+    
+        finally:
+            if 'session' in locals():session.close()
+            if 'engine' in locals():engine.dispose()
 
 
 
