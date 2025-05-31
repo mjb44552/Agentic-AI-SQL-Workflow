@@ -11,7 +11,7 @@ responses = query_sql_agents(queries=practice_queries,
                              output_agent=sql_output_agent,
                              max_number_attempts=4,
                              print_response=True,
-                             print_progess=False)
+                             print_progess=True)
 
 print(responses)
 
