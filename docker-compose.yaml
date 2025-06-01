@@ -1,0 +1,44 @@
+version: '3.9'
+
+services:
+  # PostgreSQL Database Service
+  db:
+    image: postgres:13
+    container_name: db
+    environment:
+      POSTGRES_DB: db
+      POSTGRES_USER: db
+      POSTGRES_PASSWORD: db1234
+    ports:
+      - "5432:5432" # Maps host port 5432 to container port 5432
+    volumes:
+      - db_data:/var/lib/postgresql/data # Persistent data volume
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U db -d db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Vector Database Service (pgvector)
+  vctdb:
+    image: ankane/pgvector
+    container_name: vctdb
+    environment:
+      POSTGRES_DB: vctdb
+      POSTGRES_USER: vctdb
+      POSTGRES_PASSWORD: vctdb1234
+    ports:
+      - "5533:5432" # Maps host port 5533 on the host to container port 5432
+    volumes:
+      - vctdb_data:/var/lib/postgresql/data # Persistent data volume for the vector DB
+    healthcheck: # Adding a healthcheck for consistency and robust startup
+      test: ["CMD-SHELL", "pg_isready -U vctdb -d vctdb -p 5432"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  vctdb_data:
