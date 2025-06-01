@@ -29,6 +29,8 @@ can be more intuitive and flexible.
 For development convenience this project uses Open AI's models to build it's queries. However this projects workflow can be adapted 
 to use isolated and enterprise specific models which don't use user queries to train publically available models. 
 
+## Current Functionality:
+
 ## Setting up Python Environment:
 
 ### .env file:
