@@ -1,10 +1,8 @@
 venv
 tmp
 .env
-data
 *.yaml
 *.yml
 __pycache__/
 private_notes.md
-*.csv
 
