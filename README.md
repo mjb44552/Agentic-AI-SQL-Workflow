@@ -1,5 +1,6 @@
 
-# Agentic Ski Resort Recommendation System
+# Agentic AI SQL Workflow
+#### Extracting Ski Resort Characteristics from Postgres Database
 
 ## Project Aim:
 
