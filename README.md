@@ -3,62 +3,70 @@
 
 ## Project Aim:
 
-This project aims to create an Agentic AI workflow which allows users to ask natural language questions 
-and receive answers to queries requiring data from a Postgres database.
+This project aims to create an Agentic AI workflow which allows users to query a Postgres database using natural language  
+questions. They receive answers using summarised data from the Postgres database.
 
 Currently this project is set up to retrieve the characteristics of ski resorts from around the world. 
 
 ## Project Description: 
 
-This project utalises AI agents developed using open-source Agno Agents (https://docs.agno.com/reference/agents/agent). 
-
-In it's current form the project has an agent workflow with two agents:
-1. sql_input_agent: This agent generates SQL queries which will extract useful data for answering user questions. 
-2. sql_output_agent: This agents runs sql_input_agent's SQL query. It returns, summarises and explains it's results in a easily readable format.
-
-The project was also designed to extract data using AI, but not pass all the data directly to the AI. The concepts from this project
-could be used to design, build and deploy AI applications which cannot simply add data to an AI query because:
-1. Volume of data constraints:  Feeding all available data into an AI system will exceed context windows and token limits. 
-2. Sensitive data constraints: The data to be extracted is private and confidential and shouldn't be used to train publically available models.
-
-## Project Scope:
-
 This project's agentic workflow is a minimum viable product showing how AI can automate building SQL queries to extract data from a database. This project shows the benefits of using an AI's semantic understanding of a database's schema to build SQL queries so that data extraction 
-can be more intuitive and flexible. 
+can be more intuitive and flexible.
 
-For development convenience this project uses Open AI's models to build it's queries. However this projects workflow can be adapted 
-to use isolated and enterprise specific models which don't use user queries to train publically available models. 
+This project utilises AI agents developed using open-source Agno Agents (https://docs.agno.com/reference/agents/agent). 
+
+The project was designed to extract data using AI but not pass all the data directly to the AI. The concepts from this project
+could be used to design, build and deploy AI applications which can't add the entire dataset directly into an AI query because:
+1. Volume of data constraints:  Feeding all available data into an AI system will exceed context windows and token limits. 
+2. Sensitive data constraints: The data involved is private and confidential and shouldn't be used to train publicly available models.
+
+In its current form the project has two agents:
+1. sql_input_agent: This agent generates the SQL queries which will extract data from the Postgres database. 
+2. sql_output_agent: This agents runs sql_input_agent's SQL query. It returns, summarises and explains the data in a easily readable format.
+
+For development convenience this project uses Open AI's models to build its queries. However, this project's workflow can be adapted 
+to use isolated and enterprise specific models which don't use user queries to train publicly available models. 
 
 ## Current Functionality:
 
+To interact with the sql_input_agent and the sql_output agent the user can use the query_sql_agents function from the main.py file.
+
+The query_sql_agents function has the following parameters:
+1. input_agent(Agno.Agent): The agent responsible for processing the input queries.
+2. output_agent(Agno.Agent): The agent responsible for generating the SQL queries and processing the output.
+3. max_number_attempts (int): The maximum number of attempts to run the agents. Default is 3.
+4. print_response (bool): Whether to print the queries and responses. Default is False.
+5. print_progress (bool): Whether to print the messages outlining the progress of the agents. Default is False.
+
+The function returns:
+1. results(list(dict)): A list of results from the sql_output_agent where each query result is a list element in the form of the
+    sql_output_agent_response dictionary.
+
 ## Setting up Python Environment:
 
-### .env file:
+### .env File:
 Use the example_env.txt file to setup your own .env file. The only change needed is to add your private Open AI API key.
-Don't change the variable names or variable values for any of the other envrionment variables defined in the example_env.txt file.  
+Don't change the variable names or variable values for any of the other environment variables defined in the example_env.txt file.  
 
 ### Python Package Requirements: 
-Use the requirements.txt file to download all the required python packages for this project. Use the following command:
+Use the requirements.txt file to download all the required Python packages for this project. Use the following command:
 
-<pre> ``` pip install -r requirements.txt ``` </pre>
+``` pip install -r requirements.txt ``` 
 
 ## Setting up Docker and Databases for Agno Agents:
 
-The AI agents in this project (sql_input_agent and sql_output_agent) each use databases to complete their tasks.
-The sql_input_agent uses a Postgres Vector database as a knowledge base. The knowledbe base contains the metadata and schema information for
-sql_output_agent's database. This helps the sql_input_agent to build syntactically correct and error free SQL queries which the sql_output agent runs. The sql_output_agent runs the SQL query generated by sql_input_agent on traditional Postgres database to gather data which answers
-the users initial question. 
+The AI agents in this project (sql_input_agent and sql_output_agent) each have their own database. The sql_input_agent uses a Postgres Vector database as a knowledge base. The knowledbe base contains the metadata and schema information for sql_output_agent's database. This helps the sql_input_agent to build syntactically correct and error free SQL queries which the sql_output_agent runs. The sql_output_agent's database holds the ski resort characteristics data. 
 
 These databases are hosted inside a docker container. To build the container and initialise the databases run the following command. 
 
-<pre> ```docker-compose up -d ``` </pre>
+ ```docker-compose up -d ``` 
 
 To allow the python application to access the databases add to your .env file the credentials of each database. __Use the exact variable
 names in the example_env.txt file__.
 
 When you are finished using the application you can close down the databases and their docker container using the following command.
 
-<pre> ```docker-compose down ``` </pre>
+ ```docker-compose down ```
 
 ## Data: 
 
