@@ -3,8 +3,7 @@
 
 ## Project Aim:
 
-This project aims to create an Agentic AI workflow which allows users to query a Postgres database using natural language  
-questions. They receive answers using summarised data from the Postgres database.
+This project aims to create an Agentic AI workflow which allows users to query a Postgres database using natural language questions. They receive answers using summarised data from the Postgres database.
 
 Currently this project is set up to retrieve the characteristics of ski resorts from around the world. 
 
