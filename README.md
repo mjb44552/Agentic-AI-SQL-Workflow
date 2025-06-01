@@ -1,66 +1,68 @@
 
 # Agentic Ski Resort Recommendation System
 
-## Project Aim
+## Project Aim:
 
-This project aims to create an application which utalises agentic AI
-systems to recommend ski resorts to users. 
+This project aims to create an Agentic AI workflow which allows users to ask natural language questions 
+and receive answers to queries requiring data from a Postgres database.
 
-Users could use this system to help them decide which ski resort to visit. The Agentic 
-system will gather, analyse and summaries the characteristics, features and highlights of
-each ski resort and return the information to the user in an easy read style. 
+Currently this project is set up to retrieve the characteristics of ski resorts from around the world. 
 
-This systems will provide in seconds a holistic description of each ski resort. Users won't 
-need to visit a copious number of websites to understand what the ski resorts are like. 
+## Project Description: 
 
-## Layout / UI
+This project utalises AI agents developed using open-source Agno Agents (https://docs.agno.com/reference/agents/agent). 
 
-Users will interact with the AI agents through a chat interfance. This will create 
+In it's current form the project has an agent workflow with two agents:
+1. sql_input_agent: This agent generates SQL queries which will extract useful data for answering user questions. 
+2. sql_output_agent: This agents runs sql_input_agent's SQL query. It returns, summarises and explains it's results in a easily readable format.
 
-1. An intuitive interface for users.
-2. The opportunity for users to customise their querys so that the agentic system returns the information they most need.
+The project was also designed to extract data using AI, but not pass all the data directly to the AI. The concepts from this project
+could be used to design, build and deploy AI applications which cannot simply add data to an AI query because:
+1. Volume of data constraints:  Feeding all available data into an AI system will exceed context windows and token limits. 
+2. Sensitive data constraints: The data to be extracted is private and confidential and shouldn't be used to train publically available models.
 
-Ideally, upon querying the systems user are given three good ski resort options (and reducing analysis peralysis). 
+## Project Scope:
 
-## AI Agents 
-1. Web Searcher:
-    - Goal: Retrieve information from the web when required for the user. 
-    - Limitations: Will only find text, images and videos.
-    - Tools: 
-        - Google / DuckDuckGo Search Tools 
-        - General Webscraping Tools
-        - YouTube Tools 
+This project's agentic workflow 
 
-2. Data Analyst:
-    - Goal: to summarise numerical data about ski resorts and present its findings to users.
-    - Limitations: the data being analysed will be in a database in the application. New data won't
-    come from the web.
+## Setting up Python Environment:
 
-3. Weather Girl:
-    - Goal: call the relevent API's to get up to date or historical weahter statistics for the user.
-    - Limitations: the API's it'll call will be limited ot the API's this application has keys for. 
-    - Tools:
-        - API connectors & External Services.
+### .env file:
+Use the example_env.txt file to setup your own .env file. The only change needed is to add your private Open AI API key.
+Don't change the variable names or variable values for any of the other envrionment variables defined in the example_env.txt file.  
 
-4. The critic:
-    -Goal: summarise other skiers reviews of the ski resort. 
-    -Limitations: have a list of sites the chatbot pulls reviews from.
-    -Tools: 
-        - Google / DuckDuckGo Search Tools 
-        - General Webscraping Tools 
+### Python Package Requirements: 
+Use the requirements.txt file to download all the required python packages for this project. Use the following command:
 
-5. The marketing team (tailoring to Beginner, Intermediate, Expert skiers):
-    - Goal: to describe the mountain experience according to the ability its hypothetical ability. Provide the final heuristic application.
-    - Collaboration: Could actually be multiple AI personalities discussing / collaborating together to give final recommendation.
-    - Limitations: This is the based on the validity of the data being analysed. 
+<pre> ``` pip install -r requirements.txt ``` </pre>
 
-## System Prioritise
+## Setting up Docker and Databases for Agno Agents:
 
-1. Develop the Agentic AI framework so that agents work harmoniously together. 
-2. Build limitations and goals into the agents to ensure output is consistent and useful.
-3. Build a basic user interface. 
+The AI agents in this project (sql_input_agent and sql_output_agent) each use databases to complete their tasks.
+The sql_input_agent uses a Postgres Vector database as a knowledge base. The knowledbe base contains the metadata and schema information for
+sql_output_agent's database. This helps the sql_input_agent to build syntactically correct and error free SQL queries which the sql_output agent runs. The sql_output_agent runs the SQL query generated by sql_input_agent on traditional Postgres database to gather data which answers
+the users initial question. 
 
-## Ski Resort Data 
+These databases are hosted inside a docker container. To build the container and initialise the databases run the following command. 
 
-Sourced from OpenSkiMap.org 
+<pre> ```docker-compose up -d ``` </pre>
+
+To allow the python application to access the databases add to your .env file the credentials of each database. __Use the exact variable
+names in the example_env.txt file__.
+
+When you are finished using the application you can close down the databases and their docker container using the following command.
+
+<pre> ```docker-compose down ``` </pre>
+
+## Data: 
+
+The data for this project was sourced from: 
+1. OpenSkiMap.org: https://openskimap.org/?about#6.11/38.697/-109.641
+2. Kaggle: https://www.kaggle.com/datasets/hserdaraltan/countries-by-continent
+
+Open Ski Map Organisation allows their data to be downloaded daily in a csv form. Currently, the project uses a local
+version of this data to build its database and answer user questions.
+
+Kaggle provides open-source datasets to account holders (free to join). This data was used to map countries to their 
+relative continents. Open Ski Map's data didn't include continent data. 
 
