@@ -23,7 +23,11 @@ could be used to design, build and deploy AI applications which cannot simply ad
 
 ## Project Scope:
 
-This project's agentic workflow 
+This project's agentic workflow is a minimum viable product showing how AI can automate building SQL queries to extract data from a database. This project shows the benefits of using an AI's semantic understanding of a database's schema to build SQL queries so that data extraction 
+can be more intuitive and flexible. 
+
+For development convenience this project uses Open AI's models to build it's queries. However this projects workflow can be adapted 
+to use isolated and enterprise specific models which don't use user queries to train publically available models. 
 
 ## Setting up Python Environment:
 
