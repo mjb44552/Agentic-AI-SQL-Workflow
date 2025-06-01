@@ -3,6 +3,7 @@ from typing import List
 from .helper_functions import build_sql_query
 import json
 from agno.agent import RunResponse
+from .agent_output_models import sql_output_agent_response_model
 
 
 def query_sql_agents(queries:list,
@@ -150,8 +151,32 @@ def run_new_attempts(user_query:str,previous_sql_queries:list,input_agent:Agent,
         
         # if the sql_output_agent's response contains an error, add the previous sql query the list of incorrect queries
         previous_sql_queries.append(sql_output_agent_response['sql_query'])
-
+     
+    if exceeds_max_attempts(attempts,max_number_attempts,sql_output_agent_response):
+        if print_progess: print(f"Maximum number of attempts reached ({max_number_attempts}).")
+        return {'user_query':user_query,
+                'sql_query':f'Incorrect SQL Query: {sql_output_agent_response['sql_query']}',
+                'response_text':"Unable to generate a valid SQL query after multiple attempts.",
+                'error':True}
+    
     return sql_output_agent_response
+
+def exceeds_max_attempts(attempts:int, max_number_attempts:int,sql_output_agent_response:dict) -> bool:
+    """
+    Check if the number of attempts exceeds the maximum number of attempts. 
+ 
+    Since number of attempts is incremented inside the while loop it's unlikely that attempts is ever greater than max attempts
+    therefor to when handle when max number of attempts is reached we check outside the loop using the method below.
+
+    Parameters:
+        attempts (int): The current number of attempts.
+        max_number_attempts (int): The maximum number of attempts allowed.
+        sql_output_agent_response (dict): The response from the sql_output_agent which contains the 'error' key.
+
+    Returns:
+        bool: True if the number of attempts exceeds the maximum, False otherwise.
+    """
+    return sql_output_agent_response['error'] == True and attempts >= max_number_attempts
 
 def build_sql_input_agent_query(user_query:str,previous_sql_queries:List[str] = None) -> str:
     """
