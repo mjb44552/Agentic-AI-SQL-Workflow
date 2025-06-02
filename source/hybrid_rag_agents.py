@@ -15,8 +15,7 @@ dtype_dict={"name": VARCHAR,
             "vertical_m": FLOAT,
             "min_elevation_m": FLOAT,
             "max_elevation_m": FLOAT,
-            "lift_count": INTEGER,
-            }
+            "lift_count": INTEGER}
 
 #vctdb credentials is a dictionary with the keys: user, password, host, port, database
 knowledge_base, vctdb_credentials = build_input_sql_agent_knowledge_base(new_data=resort_traits_data,

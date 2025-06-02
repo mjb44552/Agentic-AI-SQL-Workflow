@@ -74,6 +74,18 @@ When you are finished using the application you can close down the databases and
 
 ## Data: 
 
+The database which the sql_output_agent executes its queries on has one table with the following schema. 
+
+- "name": VARCHAR,
+- "country": VARCHAR,
+- 'continent': VARCHAR,
+- "downhill_distance_km": FLOAT,
+- "nordic_distance_km": FLOAT,
+- "vertical_m": FLOAT,
+- "min_elevation_m": FLOAT,
+- "max_elevation_m": FLOAT,
+- "lift_count": INTEGER,
+            
 The data for this project was sourced from: 
 1. OpenSkiMap.org: https://openskimap.org/?about#6.11/38.697/-109.641
 2. Kaggle: https://www.kaggle.com/datasets/hserdaraltan/countries-by-continent
